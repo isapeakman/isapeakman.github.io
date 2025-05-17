@@ -1,0 +1,32 @@
+# 站点基础信息
+baseURL = "https://isapeakman.github.io"  # 替换为你的域名
+languageCode = "zh-cn"
+title = "blog"
+theme = "LoveIt"                   # 必须与主题目录名一致
+
+# 多语言配置（可选）
+[languages]
+  [languages.zh-cn]
+    weight = 1
+    languageName = "中文"
+    title = "我的博客"
+    description = "这里是博客描述"
+
+# 主题参数
+[params]
+  # 基础设置
+  defaultTheme = "auto"            # 主题模式：auto/light/dark
+
+  # 作者信息
+  author = "me"
+  authorDesc = "这里是个人简介"
+
+  # 社交链接（按需启用）
+  [[params.social]]
+    name = "github"
+    url = "https://github.com/yourusername"
+
+  # 文章页配置
+  [params.page]
+    hiddenFromHomePage = false     # 是否在首页隐藏
+    comment = true                 # 启用评论（需配置评论插件）
