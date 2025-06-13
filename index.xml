@@ -11,7 +11,9 @@
     <pubDate>Sat, 14 Jun 2025 01:44:29 &#43;0800</pubDate>
     <author>xxxx</author>
     <guid>http://localhost:1313/posts/first_post/</guid>
-    <description><![CDATA[]]></description>
+    <description><![CDATA[<a class="lightgallery" href="/posts/first_post/12-git.jpg" title="/posts/first_post/12-git.jpg" data-thumbnail="/posts/first_post/12-git.jpg">
+        
+    </a>]]></description>
 </item>
 <item>
     <title>How to Build Github Pages</title>
