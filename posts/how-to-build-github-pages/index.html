@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>How to Build Github Pages - 我的全新 Hugo 网站</title><meta name="Description" content="如何通过Github Pages创建博客"><meta property="og:url" content="http://localhost:1313/posts/how-to-build-github-pages/">
+  <meta property="og:site_name" content="我的全新 Hugo 网站">
+  <meta property="og:title" content="How to Build Github Pages">
+  <meta property="og:description" content="如何通过Github Pages创建博客">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-05-16T18:52:58+08:00">
+    <meta property="article:modified_time" content="2025-05-16T18:52:58+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="How to Build Github Pages">
+  <meta name="twitter:description" content="如何通过Github Pages创建博客">
+<meta name="application-name" content="My cool site">
+<meta name="apple-mobile-web-app-title" content="My cool site">
+<meta name="referrer" content="no-referrer" /><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/how-to-build-github-pages/" /><link rel="next" href="http://localhost:1313/posts/first_post/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/css/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "How to Build Github Pages",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/how-to-build-github-pages\/"
+        },"genre": "posts","wordcount":  2505 ,
+        "url": "http:\/\/localhost:1313\/posts\/how-to-build-github-pages\/","datePublished": "2025-05-16T18:52:58+08:00","dateModified": "2025-05-16T18:52:58+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "xxxx"
+            },"description": "如何通过Github Pages创建博客"
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script>(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="我的全新 Hugo 网站">My cool site</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="我的全新 Hugo 网站">My cool site</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a></div>
+    </div>
+</header><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">How to Build Github Pages</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>xxxx</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2025-05-16">2025-05-16</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;2505 words&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;5 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#使用github-page创建个人博客的步骤">使用Github page创建个人博客的步骤</a></li>
+    <li><a href="#本地部署hugoblowfish">本地部署Hugo&amp;BlowFish</a>
+      <ul>
+        <li><a href="#安装hugo环境">安装Hugo环境</a></li>
+        <li><a href="#创建站点site">创建站点(site)</a></li>
+        <li><a href="#安装blowfish主题">安装blowfish主题</a></li>
+        <li><a href="#配置站点">配置站点</a></li>
+        <li><a href="#创建文章">创建文章</a></li>
+      </ul>
+    </li>
+    <li><a href="#远程部署">远程部署</a>
+      <ul>
+        <li><a href="#创建仓库">创建仓库</a></li>
+        <li><a href="#关联仓库推送代码">关联仓库推送代码</a></li>
+        <li><a href="#bug">Bug</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考文章致谢">参考文章致谢</a>
+      <ul>
+        <li><a href="#题外话">题外话</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="使用github-page创建个人博客的步骤">使用Github page创建个人博客的步骤</h2>
+<p>主要步骤：</p>
+<ol>
+<li>
+<p>本地部署Hugo+BlowFish项目</p>
+<ul>
+<li>
+<p>在本地使用 开源的Hugo前端项目，引入美观的前端主题</p>
+</li>
+<li>
+<p>本地测试没问题</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Github创建仓库，仓库开放 用户名.github.io地址</p>
+</li>
+<li>
+<p>将 本地博客的文件（.md文件转换后生产的/public下的html文件）提交到远程仓库</p>
+</li>
+</ol>
+<h2 id="本地部署hugoblowfish">本地部署Hugo&amp;BlowFish</h2>
+<h3 id="安装hugo环境">安装Hugo环境</h3>
+<h4 id="下载">下载</h4>
+<p>Hugo是一个用GO语言开发的静态页面的生成器，在我看来就是可以将md格式的文件 转换为 html文件，其优点就是转换的速度快。详情可以查看官方说明<a href="https://github.com/gohugoio/hugo/" target="_blank" rel="noopener noreffer ">Hugo.Github地址</a></p>
+<p>选择下载Hugo-release时建议下载扩展版，博主下载的是[hugo_extended_0.147.1_windows-amd64.zip](<a href="https://github.com/gohugoio/hugo/releases/tag/v0.147.1" target="_blank" rel="noopener noreffer ">Release v0.147.1 · gohugoio/hugo</a>)</p>
+<h4 id="配置环境变量">配置环境变量</h4>
+<ol>
+<li>
+<p>将下载后的压缩包解压到合适的位置，比如：D:Hugo</p>
+</li>
+<li>
+<p>之后复制 <code>hugo.exe</code>所在的目录路径，比如：<code>D:\Hugo</code></p>
+</li>
+<li>
+<p>将复制的路径在环境变量的path中进行配置，如图所示:</p>
+</li>
+</ol>
+<!-- raw HTML omitted -->
+<ol start="4">
+<li>运行<code>hugo version</code>命令，查看当前的hugo版本</li>
+</ol>
+<p>命令行输出以下内容，安装成功</p>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">hugo v0.147.3-05417512bd001c0b2cc0042dcc584575825b89b3+extended windows/amd64 <span class="nv">BuildDate</span><span class="o">=</span>2025-05-12T12:25:03Z <span class="nv">VendorInfo</span><span class="o">=</span>gohugoio</span></span></code></pre></div></div>
+<h3 id="创建站点site">创建站点(site)</h3>
+<ol>
+<li>选择一个存放  博客 的目录，创建站点</li>
+</ol>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">hugo new site &lt;site-name&gt;
+</span></span><span class="line"><span class="cl"><span class="c1"># 示例</span>
+</span></span><span class="line"><span class="cl">hugo new site blog</span></span></code></pre></div></div>
+<p>可以查看到创建的站点文件夹</p>
+<!-- raw HTML omitted -->
+<p>暂时比较重要的目录：</p>
+<ul>
+<li>
+<p>content: 存放文章</p>
+</li>
+<li>
+<p>themes: 存放主题</p>
+</li>
+<li>
+<p>hugo.toml: 站点配置文件</p>
+</li>
+</ul>
+<h3 id="安装blowfish主题">安装blowfish主题</h3>
+<ol>
+<li>切换到站点根目录，初始化仓库并将blowfish作为子模块嵌入到当前目录</li>
+</ol>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git init -b main
+</span></span><span class="line"><span class="cl">git submodule add -b main https://github.com/nunocoracao/blowfish.git themes/blowfish</span></span></code></pre></div></div>
+<ol start="2">
+<li>
+<p>切换到<code>themes/blowfish</code> ，复制<code>archetypes</code>和<code>config</code>目录，替换站点根目录的<code>archetypes</code>和<code>config</code></p>
+</li>
+<li>
+<p>进入到<code>config/_default</code>文件夹中，将<code>languages.en.toml</code>、<code>menus.en.toml</code>两个文件中间的<code>en</code>改为你的默认语言，例如<code>languages.zh-cn.toml</code>、<code>menus.zh-cn.toml</code></p>
+</li>
+<li>
+<p>进入到<code>config/_default</code>文件夹中，对<code>hugo.toml</code>文件编辑</p>
+</li>
+</ol>
+<ul>
+<li>
+<p><code>baseURL</code>: 域名</p>
+</li>
+<li>
+<p><code>defaultContentLanguage</code>: 默认语言</p>
+</li>
+<li>
+<p><code>hasCJKLanguage</code>: 开启汉字计数</p>
+</li>
+</ul>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># -- Site Configuration --</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Refer to the theme docs for more details about each of these parameters.</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># https://blowfish.page/docs/getting-started/</span>
+</span></span><span class="line"><span class="cl"><span class="nv">theme</span> <span class="o">=</span> <span class="s2">&#34;blowfish&#34;</span> <span class="c1"># UNCOMMENT THIS LINE</span>
+</span></span><span class="line"><span class="cl"><span class="nv">baseURL</span> <span class="o">=</span> <span class="s2">&#34;https://isapeakman.github.io&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">defaultContentLanguage</span> <span class="o">=</span> <span class="s2">&#34;zh-cn&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">hasCJKLanguage</span> <span class="o">=</span> <span class="nb">true</span>  
+</span></span><span class="line"><span class="cl"><span class="c1"># Other configuration options...</span></span></span></code></pre></div></div>
+<ol start="5">
+<li>在站点根目录运行<code>hugo server -D</code> 启动服务器,访问<code>localhost:1313</code>，运行成功如图</li>
+</ol>
+<!-- raw HTML omitted -->
+<h3 id="配置站点">配置站点</h3>
+<p><code>languages.zh-cn.toml</code>配置如下</p>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nv">disabled</span> <span class="o">=</span> <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="nv">languageCode</span> <span class="o">=</span> <span class="s2">&#34;zh-cn&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">languageName</span> <span class="o">=</span> <span class="s2">&#34;Simplified Chinese (China)&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">weight</span> <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="nv">title</span> <span class="o">=</span> <span class="s2">&#34;▲のBlog&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>params<span class="o">]</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">displayName</span> <span class="o">=</span> <span class="s2">&#34;简体中文&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">isoCode</span> <span class="o">=</span> <span class="s2">&#34;cn&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">rtl</span> <span class="o">=</span> <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">dateFormat</span> <span class="o">=</span> <span class="s2">&#34;2006 年 1 月 2 日&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">logo</span> <span class="o">=</span> <span class="s2">&#34;img/logo.png&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># secondaryLogo = &#34;img/secondary-logo.png&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">description</span> <span class="o">=</span> <span class="s2">&#34;My awesome website&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">copyright</span> <span class="o">=</span> <span class="s2">&#34;© 2025 - { year } peak~ん All Rights Reserved.&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>params.author<span class="o">]</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span> <span class="o">=</span> <span class="s2">&#34;peak~ん&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#   email = &#34;youremail@example.com&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">image</span> <span class="o">=</span> <span class="s2">&#34;img/blowfish_logo.png&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#   imageQuality = 96</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">headline</span> <span class="o">=</span> <span class="s2">&#34;I&#39;m only human&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">bio</span> <span class="o">=</span> <span class="s2">&#34;A little bit about you&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">links</span> <span class="o">=</span> <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span> <span class="nv">163music</span> <span class="o">=</span> <span class="s2">&#34;https://music.163.com/#/us
+</span></span></span><span class="line"><span class="cl"><span class="s2">er/home?id=541376277&#34;</span> <span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">]</span></span></span></code></pre></div></div>
+<p><code>menus.zh-cn.toml</code>配置如下</p>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[[</span>main<span class="o">]]</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span> <span class="o">=</span> <span class="s2">&#34;Home&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">pageRef</span> <span class="o">=</span> <span class="s2">&#34;/&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">weight</span> <span class="o">=</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[[</span>main<span class="o">]]</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span> <span class="o">=</span> <span class="s2">&#34;Posts&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">pageRef</span> <span class="o">=</span> <span class="s2">&#34;posts&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">weight</span> <span class="o">=</span> <span class="m">20</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[[</span>main<span class="o">]]</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span> <span class="o">=</span> <span class="s2">&#34;Categories&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">pageRef</span> <span class="o">=</span> <span class="s2">&#34;categories&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">weight</span> <span class="o">=</span> <span class="m">30</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[[</span>main<span class="o">]]</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span> <span class="o">=</span> <span class="s2">&#34;Tags&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">pageRef</span> <span class="o">=</span> <span class="s2">&#34;tags&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">weight</span> <span class="o">=</span> <span class="m">40</span></span></span></code></pre></div></div>
+<h3 id="创建文章">创建文章</h3>
+<ul>
+<li>在站点根目录运行<code>hugo new posts/first-post.md</code>从而根据Hugo的规范在/content/posts创建一个.md文件，文件的格式如下(文章的创建可能需要 服务器关闭才能创建，否则会卡住)</li>
+</ul>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nv">date</span> <span class="o">=</span> <span class="s1">&#39;2025-05-16T21:15:11+08:00&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">draft</span> <span class="o">=</span> <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="nv">title</span> <span class="o">=</span> <span class="s1">&#39;First Post&#39;</span></span></span></code></pre></div></div>
+<p>分别是创建时间、是否为草稿、文章标题.</p>
+<ul>
+<li>可以在下面书写文字内容，如下图所示：</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>显示图片：</p>
+<ul>
+<li>将图片和文章(.md)放在一个新的文件夹中， 作为博客的整体</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>在.md文件中可以用<code>&lt;img src=&quot;cat.jpg&quot;&gt;</code>显示图片，如果要控制图片尺寸，可以用<code>&lt;img src=&quot;cat.jpg&quot; width=&quot;200&quot; height=&quot;300&gt;&quot;</code></li>
+</ul>
+</li>
+<li>
+<p>在服务器运行的情况下，可以 <code>enter</code>回车 刷新 站点，当然其本身就会自动刷新。</p>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>访问浏览器 <code>localhost:1313/posts</code>，查看文章展示效果(需要注意的是<code>hugo server -D</code>则会渲染草稿，而<code>hugo server</code>则不会渲染草稿，当发现文章没有渲染出来极大可能是该原因，可以将文章设置为<code>draft: false</code>)</li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="远程部署">远程部署</h2>
+<h3 id="创建仓库">创建仓库</h3>
+<ol>
+<li>创建一个新仓库后，点击<code>Setting</code>设置</li>
+</ol>
+<!-- raw HTML omitted -->
+<ol start="2">
+<li>点击左侧的Pages设置，查看博客地址和同步显示的代码分支无误</li>
+</ol>
+<!-- raw HTML omitted -->
+<h3 id="关联仓库推送代码">关联仓库推送代码</h3>
+<p>可能使用到的git指令</p>
+<p>查看关联的远程仓库 ： <code>git remote -v</code></p>
+<p>初始化远程仓库 <code>git init -b main</code> #初始化本地分支</p>
+<p>关联远程仓库：<code> git remote add https://github.com/original/repo.git</code></p>
+<p>拉取仓库代码： <code>git pull --rebase origin main</code></p>
+<p>保存到暂存区：<code>git add .</code></p>
+<p>提交代码：<code>git commit -m &quot;&lt;提交说明&gt;&quot;</code></p>
+<p>推送分支： <code>git push -u origin main</code></p>
+<p>覆盖远程仓库：<code> git push -f origin main</code></p>
+<ol>
+<li>
+<p>切换到站点根目录 运行命令<code>hugo</code> ，实现 资源文件的编译生成，将 包含md等文件生成 为/public下的前端文件</p>
+</li>
+<li>
+<p>切换到 站点根目录下的<code>/public</code>，执行以下命令 将public下的代码推送到远程仓库</p>
+</li>
+</ol>
+<div class="code-block code-line-numbers open" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git init -b main
+</span></span><span class="line"><span class="cl">git remote add origin  &lt;git仓库地址&gt;
+</span></span><span class="line"><span class="cl">git add .
+</span></span><span class="line"><span class="cl">git commit -m <span class="s2">&#34;&lt;提交说明&gt;&#34;</span>
+</span></span><span class="line"><span class="cl">git push -u origin main  或者 git push -f origin main</span></span></code></pre></div></div>
+<ol start="3">
+<li>推送成功后,如图所示，即可查看到github.io博客的变化
+推送后，需要等候片刻进行更新，仓库提交有状态</li>
+</ol>
+<!-- raw HTML omitted -->
+<h3 id="bug">Bug</h3>
+<p>将public下的代码推送到远程仓库后，出现了部署失败的情况，具体情况如下图</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>由于 默认使用Jekll进行部署，可尝试在/public下创建.<code>nojekyll</code>文件</p>
+<p>如果仍然不行，可以使用</p>
+<div class="code-block code-line-numbers" style="counter-reset: code-block 0">
+    <div class="code-header language-shell">
+        <span class="code-title"><i class="arrow fas fa-angle-right fa-fw" aria-hidden="true"></i></span>
+        <span class="ellipses"><i class="fas fa-ellipsis-h fa-fw" aria-hidden="true"></i></span>
+        <span class="copy" title="Copy to clipboard"><i class="far fa-copy fa-fw" aria-hidden="true"></i></span>
+    </div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Sample workflow for building and deploying a Hugo site to GitHub Pages</span>
+</span></span><span class="line"><span class="cl">name: Deploy Hugo site to Pages
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">on:
+</span></span><span class="line"><span class="cl">  <span class="c1"># Runs on pushes targeting the default branch</span>
+</span></span><span class="line"><span class="cl">  push:
+</span></span><span class="line"><span class="cl">    branches:
+</span></span><span class="line"><span class="cl">      - main
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Allows you to run this workflow manually from the Actions tab</span>
+</span></span><span class="line"><span class="cl">  workflow_dispatch:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages</span>
+</span></span><span class="line"><span class="cl">permissions:
+</span></span><span class="line"><span class="cl">  contents: <span class="nb">read</span>
+</span></span><span class="line"><span class="cl">  pages: write
+</span></span><span class="line"><span class="cl">  id-token: write
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.</span>
+</span></span><span class="line"><span class="cl">concurrency:
+</span></span><span class="line"><span class="cl">  group: <span class="s2">&#34;pages&#34;</span>
+</span></span><span class="line"><span class="cl">  cancel-in-progress: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Default to bash</span>
+</span></span><span class="line"><span class="cl">defaults:
+</span></span><span class="line"><span class="cl">  run:
+</span></span><span class="line"><span class="cl">    shell: bash
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jobs:
+</span></span><span class="line"><span class="cl">  <span class="c1"># Build job</span>
+</span></span><span class="line"><span class="cl">  build:
+</span></span><span class="line"><span class="cl">    runs-on: ubuntu-latest
+</span></span><span class="line"><span class="cl">    env:
+</span></span><span class="line"><span class="cl">      HUGO_VERSION: 0.147.3
+</span></span><span class="line"><span class="cl">      HUGO_ENVIRONMENT: production
+</span></span><span class="line"><span class="cl">      TZ: America/Los_Angeles
+</span></span><span class="line"><span class="cl">    steps:
+</span></span><span class="line"><span class="cl">      - name: Install Hugo CLI
+</span></span><span class="line"><span class="cl">        run: <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          wget -O <span class="si">${</span><span class="p">{ runner.temp </span><span class="si">}</span><span class="o">}</span>/hugo.deb https://github.com/gohugoio/hugo/releases/download/v<span class="si">${</span><span class="nv">HUGO_VERSION</span><span class="si">}</span>/hugo_extended_<span class="si">${</span><span class="nv">HUGO_VERSION</span><span class="si">}</span>_linux-amd64.deb <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>          <span class="o">&amp;&amp;</span> sudo dpkg -i <span class="si">${</span><span class="p">{ runner.temp </span><span class="si">}</span><span class="o">}</span>/hugo.deb
+</span></span><span class="line"><span class="cl">      - name: Install Dart Sass
+</span></span><span class="line"><span class="cl">        run: sudo snap install dart-sass
+</span></span><span class="line"><span class="cl">      - name: Checkout
+</span></span><span class="line"><span class="cl">        uses: actions/checkout@v4
+</span></span><span class="line"><span class="cl">        with:
+</span></span><span class="line"><span class="cl">          submodules: recursive
+</span></span><span class="line"><span class="cl">          fetch-depth: <span class="m">0</span>
+</span></span><span class="line"><span class="cl">      - name: Setup Pages
+</span></span><span class="line"><span class="cl">        id: pages
+</span></span><span class="line"><span class="cl">        uses: actions/configure-pages@v5
+</span></span><span class="line"><span class="cl">      - name: Install Node.js dependencies
+</span></span><span class="line"><span class="cl">        run: <span class="s2">&#34;[[ -f package-lock.json || -f npm-shrinkwrap.json ]] &amp;&amp; npm ci || true&#34;</span>
+</span></span><span class="line"><span class="cl">      - name: Cache Restore
+</span></span><span class="line"><span class="cl">        id: cache-restore
+</span></span><span class="line"><span class="cl">        uses: actions/cache/restore@v4
+</span></span><span class="line"><span class="cl">        with:
+</span></span><span class="line"><span class="cl">          path: <span class="p">|</span>
+</span></span><span class="line"><span class="cl">            <span class="si">${</span><span class="p">{ runner.temp </span><span class="si">}</span><span class="o">}</span>/hugo_cache
+</span></span><span class="line"><span class="cl">          key: hugo-<span class="si">${</span><span class="p">{ github.run_id </span><span class="si">}</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">          restore-keys:
+</span></span><span class="line"><span class="cl">            hugo-
+</span></span><span class="line"><span class="cl">      - name: Configure Git
+</span></span><span class="line"><span class="cl">        run: git config core.quotepath <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">      - name: Build with Hugo
+</span></span><span class="line"><span class="cl">        run: <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          hugo <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>            --gc <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>            --minify <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>            --baseURL <span class="s2">&#34;</span><span class="si">${</span><span class="p">{ steps.pages.outputs.base_url </span><span class="si">}</span><span class="s2">}/&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>            --cacheDir <span class="s2">&#34;</span><span class="si">${</span><span class="p">{ runner.temp </span><span class="si">}</span><span class="s2">}/hugo_cache&#34;</span>
+</span></span><span class="line"><span class="cl">      - name: Cache Save
+</span></span><span class="line"><span class="cl">        id: cache-save
+</span></span><span class="line"><span class="cl">        uses: actions/cache/save@v4
+</span></span><span class="line"><span class="cl">        with:
+</span></span><span class="line"><span class="cl">          path: <span class="p">|</span>
+</span></span><span class="line"><span class="cl">            <span class="si">${</span><span class="p">{ runner.temp </span><span class="si">}</span><span class="o">}</span>/hugo_cache
+</span></span><span class="line"><span class="cl">          key: <span class="si">${</span><span class="p">{ steps.cache-restore.outputs.cache-primary-key </span><span class="si">}</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">      - name: Upload artifact
+</span></span><span class="line"><span class="cl">        uses: actions/upload-pages-artifact@v3
+</span></span><span class="line"><span class="cl">        with:
+</span></span><span class="line"><span class="cl">          path: ./public
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Deployment job</span>
+</span></span><span class="line"><span class="cl">  deploy:
+</span></span><span class="line"><span class="cl">    environment:
+</span></span><span class="line"><span class="cl">      name: github-pages
+</span></span><span class="line"><span class="cl">      url: <span class="si">${</span><span class="p">{ steps.deployment.outputs.page_url </span><span class="si">}</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">    runs-on: ubuntu-latest
+</span></span><span class="line"><span class="cl">    needs: build
+</span></span><span class="line"><span class="cl">    steps:
+</span></span><span class="line"><span class="cl">      - name: Deploy to GitHub Pages
+</span></span><span class="line"><span class="cl">        id: deployment
+</span></span><span class="line"><span class="cl">        uses: actions/deploy-pages@v4</span></span></code></pre></div></div>
+<p>后续 更新文章基本步骤   hugo &ndash;&gt; 推送代码  &ndash;&gt;github自动部署deploy</p>
+<h2 id="参考文章致谢">参考文章致谢</h2>
+<p><a href="https://www.hetong-re4per.com/posts/how-bulid-blog-on-github-page/" target="_blank" rel="noopener noreffer ">如何使用 Github Page 搭建自己的博客 · 瞳のBlog</a></p>
+<p><a href="https://www.jianshu.com/p/14d4206f0725" target="_blank" rel="noopener noreffer ">利用Hugo+Stack主题快速构建个人网站 - 简书</a></p>
+<h3 id="题外话">题外话</h3>
+<p>重新开启Githu Pages website</p>
+<!-- raw HTML omitted -->
+<p>排版问题</p>
+<p>尝试使用 0.147.1的版本</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2025-05-16</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on X" data-sharer="x" data-url="http://localhost:1313/posts/how-to-build-github-pages/" data-title="How to Build Github Pages"><i class="fab fa-x-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Threads" data-sharer="threads" data-url="http://localhost:1313/posts/how-to-build-github-pages/" data-title="How to Build Github Pages"><i class="fab fa-threads fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/how-to-build-github-pages/"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Hacker News" data-sharer="hackernews" data-url="http://localhost:1313/posts/how-to-build-github-pages/" data-title="How to Build Github Pages"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://localhost:1313/posts/how-to-build-github-pages/" data-title="How to Build Github Pages"><i data-svg-src="/lib/simple-icons/icons/line.min.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/how-to-build-github-pages/" data-title="How to Build Github Pages"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="Share on Diaspora" data-sharer="diaspora" data-url="http://localhost:1313/posts/how-to-build-github-pages/" data-title="How to Build Github Pages" data-description="如何通过Github Pages创建博客"><i class="fab fa-diaspora fa-fw" aria-hidden="true"></i></a><a href="https://t.me/share/url?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fhow-to-build-github-pages%2f&amp;text=How%20to%20Build%20Github%20Pages" target="_blank" title="Share on Telegram"><i class="fab fa-telegram fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+            <a href="/posts/first_post/" class="next" rel="next" title="First_post">First_post<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.145.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.3.1-DEV"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2025</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">xxxx</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div id="fixed-buttons-hidden"><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><script src="/lib/lazysizes/lazysizes.min.js"></script><script src="/lib/clipboard/clipboard.min.js"></script><script src="/lib/sharer/sharer.min.js"></script><script>window.config={"comment":{}};</script><script src="/js/theme.min.js"></script></body>
+</html>

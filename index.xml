@@ -13,5 +13,28 @@
     <guid>http://localhost:1313/posts/first_post/</guid>
     <description><![CDATA[]]></description>
 </item>
+<item>
+    <title>How to Build Github Pages</title>
+    <link>http://localhost:1313/posts/how-to-build-github-pages/</link>
+    <pubDate>Fri, 16 May 2025 18:52:58 &#43;0800</pubDate>
+    <author>xxxx</author>
+    <guid>http://localhost:1313/posts/how-to-build-github-pages/</guid>
+    <description><![CDATA[<h2 id="使用github-page创建个人博客的步骤">使用Github page创建个人博客的步骤</h2>
+<p>主要步骤：</p>
+<ol>
+<li>
+<p>本地部署Hugo+BlowFish项目</p>
+<ul>
+<li>
+<p>在本地使用 开源的Hugo前端项目，引入美观的前端主题</p>
+</li>
+<li>
+<p>本地测试没问题</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Github创建仓库，仓库开放 用户名.github.io地址</p>]]></description>
+</item>
 </channel>
 </rss>
