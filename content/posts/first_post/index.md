@@ -4,5 +4,5 @@ draft = true
 title = 'First_post'
 +++
 
-LoveIt主题的图片显示需要加{{   }}
+LoveIt主题的图片显示需要加{{   }}......
 ![...](12-git.jpg)
