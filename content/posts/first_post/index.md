@@ -5,5 +5,4 @@ title = 'First_post'
 +++
 
 LoveIt主题的图片显示需要加{{   }}
-
-{{< image src="12-git.jpg">}}
+![...](12-git.jpg)
