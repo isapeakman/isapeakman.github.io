@@ -14,7 +14,7 @@ image:
 math: 
 license: 
 comments: true
-draft: true
+draft: false
 build:
     list: always    # Change to "never" to hide the page from the list
 
@@ -44,7 +44,7 @@ Hugo-version：hugo v0.164.0
    1. 基于模板创建
       
       
-      
+
       ![Image 1](1.png)
 
 2. 确定仓库名：https://<username>.github.io/<repository-name> 也可以直接用 https://<username>.github.io)
@@ -66,8 +66,6 @@ Hugo-version：hugo v0.164.0
    3. 运行成功后访问 localhost:1313地址
    
    4. 使用命令 hugo new test/test.md 创建文章
-      
-      
       文章内容：
       
             title: "Test"
@@ -86,19 +84,33 @@ Hugo-version：hugo v0.164.0
             build:
                 list: always    # Change to "never" to hide the page from the list
       
-      ![Image 1](5.png)
-      文章创建效果：
-      ![Image 1](6.png)
+      
+
+  ![Image 1](5.png)
+  文章创建效果：
+  ![Image 1](6.png)
+
+5. 提交代码推送到Github仓库，待自动部署成功后查看（注意草稿是不会显示的，draft:false才会显示）
 
 ## 常用的Hugo命令
 
 以草稿形式运行
-    hugo server -D
+
+```
+hugo server -D
+```
 
 以指定端口运行，默认是1313端口
-    hugo server -p 1314
 
+```
+hugo server -p 1314
+```
 
+在content/post/下创建文章
+
+```
+hugo new post/文章文件夹/文章名.md
+```
 
 ## 官方文档
 
@@ -128,5 +140,3 @@ Hugo-version：hugo v0.164.0
 ## 参考文档
 
 [从零到一：使用 Hugo 和 GitHub Pages 搭建个人博客 | jaxiu He](https://blog.jaxiu.cn/blog/2025-07/%E4%BB%8E%E9%9B%B6%E5%88%B0%E4%B8%80%E4%BD%BF%E7%94%A8-hugo-%E5%92%8C-github-pages-%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/)
-
-
