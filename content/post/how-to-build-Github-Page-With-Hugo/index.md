@@ -43,8 +43,6 @@ Hugo-version：hugo v0.164.0
    
    1. 基于模板创建
       
-      
-
       ![Image 1](1.png)
 
 2. 确定仓库名：https://<username>.github.io/<repository-name> 也可以直接用 https://<username>.github.io)
@@ -133,9 +131,23 @@ hugo new post/文章文件夹/文章名.md
 
 图片显示
 
-```
+```html
 ![Image 1](1.jpg)
 ```
+
+<u>**注意若文章的文件名不是`index.md`,则会导致图片无法显示**</u>
+
+![Image](7.png)
+
+图片无法显示
+
+![image](8.png)
+
+
+
+
+
+
 
 ## 参考文档
 
