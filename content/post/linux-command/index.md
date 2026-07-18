@@ -1,0 +1,602 @@
+---
+title: "Linux Command"
+description: 
+date: 2026-07-16T21:35:23+08:00
+image: 
+math: 
+license: 
+comments: true
+draft: false
+build:
+    list: always    # Change to "never" to hide the page from the list
+---
+
+## 前言
+
+Linux脚本，从部署一个项目开始到结束用到的命令
+
+以及包含docker命令
+
+贴图表示真实。
+
+采用window下的wsl+ubantu
+
+username: chinese
+
+password: chinese
+
+
+
+部署校友直聘项目
+
+部署nginx  + 前端项目
+
+部署后端项目
+
+日志输出
+
+部署MySQL+redis
+
+基于shell脚本部署项目？
+
+基于docker部署
+
+Docker Compose
+
+dockerFile的用法
+
+
+
+- 传统部署实战 ： nohup , systemd , nginx 相关命令    命令+脚本+使用外部配置文件(java -jar myapp.jar --spring.profiles.active=prod)
+
+
+
+- Docker部署实战 ： docker build , docker run , docker logs 等命令
+- Docker Compose实战 ： docker compose up/down/restart 等命令
+- 数据库与Redis配置 ：环境变量注入、配置文件管理
+- 日志与监控 ： tail , grep , top , htop 等命令
+- 故障排查 ：常见问题及解决命令
+- 总结与建议 ：不同场景下的部署方式选择
+
+----
+
+## 第一步：基础环境
+
+当前本地环境是windows下通过WSL实现的子系统Ubuntu
+
+在Ubuntu下
+
+### 1. 更新系统包列表：
+
+```bash
+sudo apt update
+```
+
+> apt是**Ubuntu 及其衍生发行版** 下的**高级包管理命令行工具**，核心作用是管理软件包——包括查找、安装、升级、卸载软件
+>
+> ```bash
+> sudo apt update               # 刷新本地软件列表（同步远程源信息）
+> sudo apt upgrade			  #将所有已安装的包升级到最新版本
+> ```
+
+### 2. 安装 Java 运行环境 (JDK)
+
+```bash
+# 安装 OpenJDK 17
+sudo apt install openjdk-17-jdk -y
+# 验证安装
+java -version
+openjdk version "17.0.19" 2026-04-21                                                                     OpenJDK Runtime Environment (build 17.0.19+10-1-24.04.2-Ubuntu)                                           OpenJDK 64-Bit Server VM (build 17.0.19+10-1-24.04.2-Ubuntu, mixed mode, sharing)  
+```
+
+安装位置：`dpkg -L openjdk-17-jdk`
+
+![image](1.png)
+
+核心内容都在**`/usr/lib/jvm/java-17-openjdk-amd64/`**文件夹中。
+
+> 是否需要配置环境变量：不需要，apt已经在/usr/bin/java、/usr/bin/javac等创建为软链接，并最终指向 JDK 的实际安装目录下的可执行文件（比如/usr/lib/jvm/java-17-openjdk-amd64/bin/java）
+
+### 3.安装 Nginx
+
+Nginx 作为 Web 服务器和反向代理服务器。
+
+```bash
+sudo apt install nginx -y
+# 验证安装
+nginx -v
+nginx version: nginx/1.24.0 (Ubuntu)
+```
+
+### 4.安装数据库 (MySQL)：
+
+查看是否安装过mysql `dpkg -l | grep mysql-server`
+
+- 如果输出以 `ii` 开头（如 `ii mysql-server ...`），说明已经装过了。
+- 如果输出以 `rc` 开头，说明配置文件还在，但软件已删除。
+- 如果无任何输出，说明未安装。
+
+```bash
+# 安装 MySQL 服务器
+sudo apt install mysql-server -y
+# 安装后建议运行安全脚本
+sudo mysql_secure_installation
+```
+
+### 5.安装redis
+
+```bash
+# 1. 更新源并安装
+sudo apt update
+sudo apt install redis-server -y
+
+# 2. 启动 Redis 服务并设为开机自启
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# 3. 检查运行状态
+sudo systemctl status redis-server
+
+# 4. 测试连接（默认监听 127.0.0.1:6379）
+redis-cli ping
+# 返回 PONG 即成功
+```
+
+#### redis供外部连接
+
+- 配置文件：`/etc/redis/redis.conf`
+- 默认只允许本地连接，若需远程访问，需注释 `bind 127.0.0.1`并将`protected-mode` yes改为 no 
+- ![image](8.png)
+
+##### 通过windows的cmd连接Redis
+
+`telnet 172.31.19.238 6379`
+
+![image](10.png)
+
+其中 $5表示五个字节的意思
+
+当前窗口使用 `quit`进行退出
+
+##### 通过RedisDesktopManager连接
+
+![image](9.png)
+
+### 6.安装minio
+
+由于**MinIO 官方并没有将服务器版本提交到 Ubuntu/Debian 的默认 APT 源**，所以使用wget下载
+
+```
+# 1. 下载最新版 MinIO 二进制（64位 Linux）
+wget https://dl.min.io/server/minio/release/linux-amd64/minio
+chmod +x minio
+
+# 2. 创建数据目录
+sudo mkdir -p /data/minio
+
+# 3. 设置环境变量（凭据）
+export MINIO_ROOT_USER=minioadmin
+export MINIO_ROOT_PASSWORD=minioadmin
+
+# 4. 启动服务（前台运行，默认 API 端口 9000，控制台端口在启动日志里看）
+./minio server /data/minio
+```
+
+### 7.安装SSH 
+
+ssh用于文件上传，模拟真实的Linux环境，虽然可以让ubantu直接访问本地文件
+
+```bash
+sudo apt install openssh-server -y
+# 修改 SSH 配置文件
+sudo vim /etc/ssh/sshd_config
+```
+
+找到 `#PasswordAuthentication yes`，去掉前面的 # 注释，确保它是 yes。表示ssh需要密码授权
+
+修改时可以用 `/`进行搜索 `/PasswordAuthentication`,使用`INSERT`进行修改
+
+![image](2.png)
+
+```
+# 启动服务
+sudo service ssh start
+# 设置为开机自启（如果是 WSL 2，可能需要额外配置，但手动启动也方便）
+sudo systemctl enable ssh
+```
+
+` sudo systemctl status ssh`查看ssh的状态
+
+![image](3.png)
+
+`sudo ss -tlnp | grep :22` 查看端口监听状态
+
+> sudo netstat -tlnp | grep :22 中的`netstat` 命令在某些现代 Linux 发行版中默认不再预装，它被更先进的 `ss` 替代了
+
+![image](4.png)
+
+
+
+
+
+
+
+
+
+ip addr show eth0 | grep inet  在WSL中查看ip地址，如果是正常的Linux系统则使用 `ifconfig`
+
+输出：
+
+```bash
+inet 172.31.19.238/20 brd 172.31.31.255 scope global eth0                                                   inet6 fe80::215:5dff:fe75:5d60/64 scope link    
+```
+
+
+
+ubantu在用户主目录（`~`）创建项目文件夹
+
+```
+mkdir -p ~/projects/frontend 
+mkdir -p ~/projects/backend 
+```
+
+
+
+在window的cmd窗口进行文件上传
+
+`scp -r dist路径 wsl用户名@地址:文件夹路径`
+
+```
+scp -r D:\a\alumni-direct\alumni-direct-ui\dist chinese@172.31.19.238:~/projects/frontend
+```
+
+![image](5.png)
+
+## 第二步：打包并上传项目
+
+### **在本地打包项目(Springboot)**：
+在你的 IDEA 或终端中，进入后端项目根目录，执行 Maven 打包命令：
+
+对于common模块需要用 `mvn clean install -DskipTests`跳过`@SpringBootTest`测试并打包安装到本地仓库，后续才能被service模块引用
+
+```
+mvn clean package -DskipTests
+```
+
+成功后，会在 `target/` 目录下生成一个 `.jar` 文件，比如 `myapp-0.0.1-SNAPSHOT.jar`。
+
+> 值得注意的是打包的jar时需要用到spring-boot-maven-plugin插件，这个jar会**包含正确的启动入口信息**。没有该插件打包出来的jar包没有包含入口信息，运行时会出现 `no main manifest attribute`
+>
+> <build>
+>         <plugins>
+>             <plugin>
+>                 <groupId>org.springframework.boot</groupId>
+>                 <artifactId>spring-boot-maven-plugin</artifactId>
+>                 <version>2.7.0</version> <!-- 版本号通常由 parent 管理，无需指定 -->
+>                 <executions>
+>                     <execution>
+>                         <goals>
+>                             <goal>repackage</goal>
+>                         </goals>
+>                     </execution>
+>                 </executions>
+>             </plugin>
+>         </plugins>
+>     </build>
+
+### 上传 JAR 包到服务器：
+你可以使用 `scp` 命令将文件从 Windows 复制到 WSL 中。**建议将代码放在 WSL 自己的文件系统里**（例如 `~/projects/`），性能会更好。
+
+```
+# 在 WSL 中创建一个项目目录
+mkdir -p ~/projects/backend
+```
+
+在windows cmd运行命令
+
+```
+scp -r D:\a\alumni-direct\alumni-direct-service\target\alumni-direct-service-0.0.1-SNAPSHOT.jar chinese@172.31.19.238:~/projects/backend
+```
+
+
+
+1. **后台运行 JAR 包**：
+   使用 `nohup` 命令让 Java 进程在后台持续运行，即使你关闭终端也不会中断。
+
+   bash
+
+   ```
+   cd ~/projects/backend
+   # 将日志输出到 app.log 文件，& 表示后台运行
+   nohup java -jar myapp-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+   ```
+
+   
+
+   - **验证**：执行 `ps -ef | grep java` 可以看到正在运行的 Java 进程。执行 `tail -f app.log` 可以实时查看启动日志。
+
+### 打包前端 (Vue)
+
+1. **在本地构建项目**：
+   进入Vue 项目根目录，执行构建命令：
+
+   bash
+
+   ```
+   npm run build
+   ```
+
+   构建完成后，会在项目根目录生成一个 `dist` 文件夹，里面包含了所有生产环境的静态文件。
+
+2. **上传 `dist` 到服务器**：
+   同样，把 `dist` 文件夹复制到 WSL 的文件系统中。
+
+   ```
+   # 在 WSL 中创建前端项目目录
+   mkdir -p ~/projects/frontend
+   # 复制 dist 文件夹 (假设它在 Windows C 盘根目录)
+   cp -r /mnt/c/dist ~/projects/frontend/
+   ```
+
+## 第三步：配置 Nginx
+
+这是连接前后端的关键。Nginx 需要做两件事：一是找到你的前端页面，二是把 API 请求转交给后端 Java 程序。
+
+1. **编辑 Nginx 配置文件**：
+
+   ```
+   sudo vim /etc/nginx/sites-available/default
+   ```
+
+2. **修改配置**：
+   将文件内容修改或替换为以下配置。**请将路径和域名替换成自己的**。
+
+   nginx
+
+   ```
+   server {
+       listen 80;                          # 监听 80 端口
+       server_name your-domain.com;        # 替换为你的域名或服务器 IP
+   
+       # 前端静态文件配置
+       location / {
+           root /home/your-username/projects/frontend/dist; # 替换为你的 dist 实际路径
+           index index.html;
+           try_files $uri $uri/ /index.html; # 解决 Vue Router 的 history 模式刷新 404 问题[reference:18]
+       }
+   
+       # 后端 API 反向代理配置
+       location /api/ {                    # 前端请求的 API 前缀
+           proxy_pass http://127.0.0.1:8080/; # 假设你的后端运行在 8080 端口[reference:19]
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       }
+   }
+   ```
+
+3. **测试并重载 Nginx**：
+
+   bash
+
+   ```bash
+   # 测试配置文件语法是否正确[reference:20]
+   sudo nginx -t      
+   语法正确输出：
+   nginx: the configuration file /etc/nginx/nginx.conf syntax is ok                       
+   nginx: configuration file /etc/nginx/nginx.conf test is successful 
+   # 如果显示 successful，则重载 Nginx 使配置生效[reference:21]
+   sudo systemctl reload nginx
+   ```
+
+   如果此时访问，会发现500错误
+
+   ![image](7.png)
+
+4. 赋予 Nginx 读取权限
+
+Nginx 默认以 `www-data` 用户和用户组运行。而前端文件 (`dist`) 位于用户 `chinese` 的主目录下，默认权限是 `750` (即 `rwxr-x---`)，这意味着 `www-data` 用户**无法进入** `/home/chinese/` 目录，更别说读取其子目录下的文件了
+
+> `www-data` 是 **Ubuntu / Debian 系统中，Web 服务器默认使用的系统用户**。当你安装 Nginx 或 Apache 时，它们的工作进程会以这个用户的身份运行。
+
+sudo mv ~/projects/frontend /var/www/html/alumni-frontend 
+
+重新配置nginx文件： root /var/www/html/alumni-frontend/dist;
+
+重启nginx后在windows访问 `172.31.19.238:80`即可访问
+
+![image](6.png)
+
+## 第四步：数据库脚本运行
+
+这里可以通过可视化工具 `datagrip`或者 `navicat`又或者 `idea`去建好库表之类的。但本次采用导入sql脚本到ubantu直接去执行脚本
+
+使用idea导出对应的sql脚本，点击库，选择 **export with mysqldump**
+
+可以在资源管理器找到mysqld.exe后查找文件地址从而找到本地Mysql的安装目录
+
+![image](11.png)
+
+`Out path`导出路径最好写上文件名，不然可能会显示
+
+`mysqldump: Can't create/write to file 'C:\Users\chinese' (OS errno 13 - Permission denied)`这样的错误
+
+![image](12.png)
+
+上传文件后 `scp C:\Users\chinese\schema.sql chinese@172.31.19.238:~/projects/sql/`，登录Mysql
+
+```bash
+sudo mysql -u root -p
+```
+
+修改密码
+
+```
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456'; 
+```
+
+导出的sql文件是没有建库语句的，在执行脚本前要先建库
+
+```
+CREATE DATABASE IF NOT EXISTS alumni_direct;
+USE alumni_direct;
+```
+
+跑sql
+
+```
+SOURCE /home/chinese/projects/sql/schema.sql;
+```
+
+## 第五步：项目部署
+
+一个nginx只能部署一个前端项目？
+
+1. 基于命令启动后端项目
+
+```bash
+java -jar alumni-direct-service-0.0.1-SNAPSHOT.jar  \
+  --spring.datasource.url=jdbc:mysql://localhost:3306/yourdb \
+  --spring.datasource.username=root \
+  --spring.datasource.password=你的密码 \
+  --spring.redis.host=localhost \
+  --spring.redis.port=6379
+```
+
+不过由于当前项目本身拥有配置文件 `application-local.yml` 且配置项较多，采用
+
+2. 基于配置文件进行运行
+
+```bash
+java -jar your-app.jar --spring.profiles.active=local
+```
+
+> - `application.yml` (基础公共配置)
+> - `application-local.yml`：本地环境
+> - `application-dev.yml`：开发环境
+> - `application-test.yml`：测试环境
+> - `application-staging`：灰度环境 
+> - `application-prod.yml`:生产环境
+>
+> 在部署时，通过 `--spring.profiles.active` 参数来指定，如 `--spring.profiles.active=test`。这样，Spring Boot 就会加载 `application.yml` 和 `application-test.yml` 中的配置，且**后者会覆盖前者的同名配置**
+
+后台运行
+
+
+
+
+
+
+
+## 管理与监控
+
+### 项目启动和组件启动脚本
+
+```
+ps -ef | grep java
+```
+
+```
+# 停止进程 (将 PID 替换为查到的数字)
+kill -9 PID
+```
+
+- **将后端配置为系统服务 (Systemd)**：
+  使用 `nohup` 管理进程不够优雅。更好的做法是创建一个 Systemd 服务，让系统来管理 Java 进程的启动、停止和开机自启。
+
+  1. 创建一个服务文件：`sudo vim /etc/systemd/system/myapp.service`
+
+  2. 写入以下内容（修改路径）：
+
+     ini
+
+     ```
+     [Unit]
+     Description=My Spring Boot Application
+     After=syslog.target
+     
+     [Service]
+     User=your-username
+     ExecStart=/usr/bin/java -jar /home/your-username/projects/backend/myapp.jar
+     SuccessExitStatus=143
+     
+     [Install]
+     WantedBy=multi-user.target
+     ```
+
+     
+
+  3. 启动并启用服务：
+
+     ```
+     sudo systemctl daemon-reload
+     sudo systemctl start myapp
+     sudo systemctl enable myapp  # 设置开机自启
+     ```
+
+
+
+### 监控
+
+```
+ps aux          # 显示所有用户的所有进程，BSD 风格
+ps -ef          # 显示所有进程，Unix 风格
+ps -ef | grep nginx   # 结合 grep 过滤特定进程
+常用组合：
+
+aux：a 所有终端进程，u 用户格式输出，x 包含无终端的进程。
+
+-ef：-e 所有进程，-f 全格式列表。
+
+top   实时监控进程的CPU、内存占用， 按P则按CPU排序，按M则按内存排序，q退出
+pgrep nginx           # 返回匹配进程的 PID
+pidof nginx           # 返回进程的 PID（精确匹配可执行文件名）
+```
+
+
+
+### 上传
+
+
+
+### 文件管理
+
+```
+rm -r 文件夹名  递归删除文件夹
+```
+
+文件内的指令
+
+`/`搜索，如何下一个？
+
+
+
+
+
+### 权限管理
+
+```
+-rwxr-xr-x
+```
+
+拆成四段：
+
+| 第1位             | 第2-4位    | 第5-7位    | 第8-10位   |
+| :---------------- | :--------- | :--------- | :--------- |
+| `-` 文件 `d` 目录 | 拥有者权限 | 同组人权限 | 其他人权限 |
+
+x对于文件夹来说是不能cd进去查看文件和里面的文件操作
+
+rwxr-xr-x     表示用户对文件/文件夹的权限，拥有者拥有rwx的权限 读写执行，同组用户拥有读执行 权限...
+
+```
+7 = 读(4) + 写(2) + 执行(1) = rwx
+5 = 读(4) + 执行(1)         = r-x
+0 = 啥都没有                  = ---
+```
+
+三个数字分别代表**拥有者、同组、其他人**：
+
+```
+chmod 755 文件名
+```
