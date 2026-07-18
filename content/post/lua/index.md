@@ -1,6 +1,6 @@
 ---
 title: "Redis Lua 脚本实战指南"
-description: Redis Lua 脚本的核心原理、实战场景与常见问题，涵盖原子性、EVALSHA、分布式锁等知识
+description: This section covers the core principles, practical scenarios, and common problems of Redis Lua scripts, including concepts such as atomicity, EVALSHA, and distributed locks.
 date: 2026-06-14T14:59:30+08:00
 categories:
     - 脚本
@@ -10,7 +10,7 @@ tags:
     - Redis
     - lua
 draft: false
-image: 
+image: screen.jpg
 math: 
 license: 
 comments: true

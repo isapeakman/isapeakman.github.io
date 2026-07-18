@@ -1,3 +1,24 @@
 /*
     You can add your own custom styles here.
 */
+// 调整首页文章列表中的所有卡片图片
+.article-list {
+    --article-image-height: 180px;
+}
+// 卡片间的距离
+.article-list {
+    row-gap: 15px !important;   // 或 gap: 10px !important;
+}
+// 卡片内部内容与外框的距离
+.article-list .article-details {
+    padding: 6px 10px !important;   // 上6px，左右10px（数值自定）
+    gap: 4px !important;            // 内部元素间距
+}
+// 描述文字
+.article-subtitle {
+    font-weight: 400;
+    color: var(--card-text-color-secondary);
+    line-height: 1.5;
+    margin: 0;
+    font-size: 1.5rem;
+}

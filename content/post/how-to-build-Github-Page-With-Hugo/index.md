@@ -5,12 +5,14 @@ date: 2026-06-10T09:31:27+08:00
 categories:
     - Hugo
     - Github
-    - blog
+    - 博客
+    - 部署
 tags:
     - Go
     - Html
     - CSS
-image: 
+    - CI/CD
+image: screen.jpg
 math: 
 license: 
 comments: true
@@ -143,11 +145,38 @@ hugo new post/文章文件夹/文章名.md
 
 ![image](8.png)
 
+### 博客样式自定义
 
+在`\assets\scss\custom.scss`中，可根据css样式进行自定义
 
+本博客修改过的样式如下:
 
-
-
+```css
+/*
+    You can add your own custom styles here.
+*/
+// 调整首页文章列表中的所有卡片图片
+.article-list {
+    --article-image-height: 180px;
+}
+// 卡片间的距离
+.article-list {
+    row-gap: 15px !important;   // 或 gap: 10px !important;
+}
+// 卡片内部内容与外框的距离
+.article-list .article-details {
+    padding: 6px 10px !important;   // 上6px，左右10px（数值自定）
+    gap: 4px !important;            // 内部元素间距
+}
+// 描述文字
+.article-subtitle {
+    font-weight: 400;
+    color: var(--card-text-color-secondary);
+    line-height: 1.5;
+    margin: 0;
+    font-size: 1.5rem;
+}
+```
 
 ## 参考文档
 

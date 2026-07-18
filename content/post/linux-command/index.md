@@ -1,6 +1,6 @@
 ---
 title: "项目部署过程涉及的Linux命令--以校友直聘为例"
-description: 
+description: Linux commands involved in project deployment – taking alumni direct recruitment as an example
 date: 2026-06-16T21:35:23+08:00
 categories:
     - 部署
@@ -14,9 +14,9 @@ tags:
     - Nginx
     - Mysql
     - Redis
-    - wsl
+    - WSL
     - ubantu
-image: 
+image: screen.jpg
 math: 
 license: 
 comments: true
@@ -356,74 +356,79 @@ scp -r D:\a\alumni-direct\alumni-direct-service\target\alumni-direct-service-0.0
 
 这是连接前后端的关键。Nginx 需要做两件事：一是找到你的前端页面，二是把 API 请求转交给后端 Java 程序。
 
-1. **编辑 Nginx 配置文件**：
+### 1. 编辑 Nginx 配置文件：
 
-   ```
-   sudo vim /etc/nginx/sites-available/default
-   ```
+```
+sudo vim /etc/nginx/sites-available/default
+```
 
-2. **修改配置**：
-   将文件内容修改或替换为以下配置。**请将路径和域名替换成自己的**。
+将文件内容修改或替换为以下配置。**将路径和域名替换**。
 
-   nginx
+```
+server {
+    listen 80;                          # 监听 80 端口
+    server_name your-domain.com;        # 替换为你的域名或服务器 IP
 
-   ```
-   server {
-       listen 80;                          # 监听 80 端口
-       server_name your-domain.com;        # 替换为你的域名或服务器 IP
-   
-       # 前端静态文件配置
-       location / {
-           root /home/your-username/projects/frontend/dist; # 替换为你的 dist 实际路径
-           index index.html;
-           try_files $uri $uri/ /index.html; # 解决 Vue Router 的 history 模式刷新 404 问题[reference:18]
-       }
-   
-       # 后端 API 反向代理配置
-       location /api/ {                    # 前端请求的 API 前缀
-           proxy_pass http://127.0.0.1:8080/; # 假设你的后端运行在 8080 端口[reference:19]
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       }
-   }
-   ```
+    # 前端静态文件配置
+    location / {
+        root /home/your-username/projects/frontend/dist; # 替换 dist 实际路径
+        index index.html;
+        try_files $uri $uri/ /index.html; # 解决 Vue Router 的 history 模式刷新 404 问题[reference:18]
+    }
 
-3. **测试并重载 Nginx**：
+    # 后端 API 反向代理配置
+    location /api/ {                    # 前端请求的 API 前缀
+        proxy_pass http://127.0.0.1:8080/; # 假设后端运行在 8080 端口[reference:19]
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
 
-   bash
+### 2. 测试并重载 Nginx：
 
-   ```bash
-   # 测试配置文件语法是否正确[reference:20]
-   sudo nginx -t      
-   语法正确输出：
-   nginx: the configuration file /etc/nginx/nginx.conf syntax is ok                       
-   nginx: configuration file /etc/nginx/nginx.conf test is successful 
-   # 如果显示 successful，则重载 Nginx 使配置生效[reference:21]
-   sudo systemctl reload nginx
-   ```
+```bash
+# 测试配置文件语法是否正确[reference:20]
+sudo nginx -t      
+语法正确输出：
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok                       
+nginx: configuration file /etc/nginx/nginx.conf test is successful 
+# 如果显示 successful，则重载 Nginx 使配置生效[reference:21]
+sudo systemctl reload nginx
+```
 
-   如果此时访问，会发现500错误
+如果此时访问，会发现500错误
 
-   ![image](7.png)
+![image](7.png)
 
-4. 赋予 Nginx 读取权限
+### 3. 使Nginx 能读取/dist
+
+- **Nginx无法读取到/dist原因**
 
 Nginx 默认以 `www-data` 用户和用户组运行。而前端文件 (`dist`) 位于用户 `chinese` 的主目录下，默认权限是 `750` (即 `rwxr-x---`)，这意味着 `www-data` 用户**无法进入** `/home/chinese/` 目录，更别说读取其子目录下的文件了
 
 > `www-data` 是 **Ubuntu / Debian 系统中，Web 服务器默认使用的系统用户**。当你安装 Nginx 或 Apache 时，它们的工作进程会以这个用户的身份运行。
 
+- **转移/dist文件夹到nginx的存放文件目录下**
+
+```bash
 sudo mv ~/projects/frontend /var/www/html/alumni-frontend 
+```
+
+- **重新配置并重启**
 
 重新配置nginx文件： root /var/www/html/alumni-frontend/dist;
 
-重启nginx后在windows访问 `172.31.19.238:80`即可访问
+重启nginx 后在windows访问  `172.31.19.238:80`即可访问
 
 ![image](6.png)
 
 ## 第四步：数据库脚本运行
 
-这里可以通过可视化工具 `datagrip`或者 `navicat`又或者 `idea`去建好库表之类的。但本次采用导入sql脚本到ubantu直接去执行脚本
+这里可以通过可视化工具 `datagrip`或者 `navicat`又或者 `idea`连接数据库，从而建好库表之类的。但本次采用导入sql脚本到ubantu直接去执行脚本
+
+### 1. 导出SQL脚本
 
 使用idea导出对应的sql脚本，点击库，选择 **export with mysqldump**
 
@@ -437,7 +442,11 @@ sudo mv ~/projects/frontend /var/www/html/alumni-frontend
 
 ![image](12.png)
 
-上传文件后 `scp C:\Users\chinese\schema.sql chinese@172.31.19.238:~/projects/sql/`，登录Mysql
+上传文件后 `scp C:\Users\chinese\schema.sql chinese@172.31.19.238:~/projects/sql/`
+
+### 2. 执行SQL脚本
+
+登录Mysql
 
 ```bash
 sudo mysql -u root -p
@@ -456,7 +465,7 @@ CREATE DATABASE IF NOT EXISTS alumni_direct;
 USE alumni_direct;
 ```
 
-跑sql
+运行sql
 
 ```
 SOURCE /home/chinese/projects/sql/schema.sql;
@@ -479,7 +488,7 @@ java -jar alumni-direct-service-0.0.1-SNAPSHOT.jar  \
 
 不过由于当前项目本身拥有配置文件 `application-local.yml` 且配置项较多，采用基于配置文件运行
 
-### 2. 基于配置文件运行
+### 2. ⭐基于配置文件运行
 
 ```bash
 java -jar your-app.jar --spring.profiles.active=local

@@ -1,6 +1,6 @@
 ---
 title: "基于DelayedQueue实现订单延迟关闭/超时取消"
-description: 基于Redisson DelayedQueue实现订单延迟关闭/超时取消的原理与实践 
+description: The principle and practice of implementing delayed order closing/timeout cancellation based on Redisson DelayedQueue
 date: 2026-06-12T09:31:27+08:00
 categories:
     - 延迟队列
@@ -10,7 +10,7 @@ tags:
     - Redisson
     - DelayedQueue
     - Lua
-image: 
+image: screen.jpg
 math: 
 license: 
 comments: true
