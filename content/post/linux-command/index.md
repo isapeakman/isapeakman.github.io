@@ -174,9 +174,11 @@ redis-cli ping
 
 ### 6. 安装minio
 
+#### 1. 下载并启动
+
 由于**MinIO 官方并没有将服务器版本提交到 Ubuntu/Debian 的默认 APT 源**，所以使用wget下载
 
-```
+```bash
 # 1. 下载最新版 MinIO 二进制（64位 Linux）
 wget https://dl.min.io/server/minio/release/linux-amd64/minio
 chmod +x minio
@@ -190,11 +192,49 @@ export MINIO_ROOT_PASSWORD=minioadmin
 
 # 4. 启动服务（前台运行，默认 API 端口 9000，控制台端口在启动日志里看）
 ./minio server /data/minio
+# 后台运行命令并将日志输出到minio.log中
+nohup ./minio server /data/minio > minio.log 2>&1 &
 ```
+
+#### 2. 查看minio进程
+
+![image](14.png)
+
+第一条为minio进程，第二条为grep进程。minio的进程号为3168
+
+#### 3. 查看minio端口号
+
+```
+# 查看所有minio占用端口号，默认为9000
+sudo ss -tlnp | grep minio
+```
+
+#### 4. 通过windows访问minio客户端页面
+
+![image](15.png)
+
+用户名和密码均为 `minioadmin`
+
+#### 5. 可能遇到的文件权限访问问题
+
+![image](13.png)
+
+本质上是一个 **文件系统权限问题**：MinIO 进程试图在 `/data/minio/.minio.sys` 下做内部元数据维护（重命名临时目录），但被**拒绝了**。
+
+可以考虑用以下命令
+
+```
+sudo chown -R $USER:$USER /data/minio  
+#递归地把 /data/minio 目录及其内部所有文件和子目录的所有者，改为当前用户（并同时更改所属组为当前用户组）
+```
+
+执行完后再执行启动命令
 
 ### 7. 安装SSH 
 
 ssh用于文件上传，模拟真实的Linux环境，虽然可以让ubantu直接访问本地文件
+
+#### 1. 安装并修改SSH配置文件
 
 ```bash
 sudo apt install openssh-server -y
@@ -207,6 +247,8 @@ sudo vim /etc/ssh/sshd_config
 修改时可以用 `/`进行搜索 `/PasswordAuthentication`,使用`INSERT`进行修改
 
 ![image](2.png)
+
+#### 2. 启动SSH服务
 
 ```
 # 启动服务
@@ -229,29 +271,6 @@ sudo systemctl enable ssh
 
 
 
-
-
-
-
-ip addr show eth0 | grep inet  在WSL中查看ip地址，如果是正常的Linux系统则使用 `ifconfig`
-
-输出：
-
-```bash
-inet 172.31.19.238/20 brd 172.31.31.255 scope global eth0                                                   inet6 fe80::215:5dff:fe75:5d60/64 scope link    
-```
-
-
-
-ubantu在用户主目录（`~`）创建项目文件夹
-
-```
-mkdir -p ~/projects/frontend 
-mkdir -p ~/projects/backend 
-```
-
-
-
 在window的cmd窗口进行文件上传
 
 `scp -r dist路径 wsl用户名@地址:文件夹路径`
@@ -264,7 +283,18 @@ scp -r D:\a\alumni-direct\alumni-direct-ui\dist chinese@172.31.19.238:~/projects
 
 ## 第二步：打包并上传项目
 
-### 1. 在本地打包项目(Springboot)：
+### 1. 打包前端项目 (Vue)
+
+1. **在本地构建项目**：
+   进入Vue 项目根目录，执行构建命令：
+
+   ```bash
+   npm run build
+   ```
+
+   构建完成后，会在项目根目录生成一个 `dist` 文件夹，里面包含了所有生产环境的静态文件。
+
+### 2. 在本地打包后端项目(Springboot)：
 在你的 IDEA 或终端中，进入后端项目根目录，执行 Maven 打包命令：
 
 对于common模块需要用 `mvn clean install -DskipTests`跳过`@SpringBootTest`测试并打包安装到本地仓库，后续才能被service模块引用
@@ -298,61 +328,23 @@ mvn clean package -DskipTests
 >
 > 
 
-### 2. 上传 JAR 包到服务器：
-你可以使用 `scp` 命令将文件从 Windows 复制到 WSL 中。**建议将代码放在 WSL 自己的文件系统里**（例如 `~/projects/`），性能会更好。
+### 3. 上传 JAR 包到Linux
+
+ubantu在用户主目录（`~`）创建项目文件夹
 
 ```
-# 在 WSL 中创建一个项目目录
-mkdir -p ~/projects/backend
+mkdir -p ~/projects/frontend 
+mkdir -p ~/projects/backend 
 ```
 
-在windows cmd运行命令
+在windows cmd运行命令进行文件上传
 
 ```
+scp -r D:\a\alumni-direct\alumni-ui\dist chinese@172.31.19.238:~/projects/frontend
 scp -r D:\a\alumni-direct\alumni-direct-service\target\alumni-direct-service-0.0.1-SNAPSHOT.jar chinese@172.31.19.238:~/projects/backend
 ```
 
-
-
-1. **后台运行 JAR 包**：
-   使用 `nohup` 命令让 Java 进程在后台持续运行，即使你关闭终端也不会中断。
-
-   bash
-
-   ```
-   cd ~/projects/backend
-   # 将日志输出到 app.log 文件，& 表示后台运行
-   nohup java -jar myapp-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-   ```
-
-   
-
-   - **验证**：执行 `ps -ef | grep java` 可以看到正在运行的 Java 进程。执行 `tail -f app.log` 可以实时查看启动日志。
-
-### 打包前端 (Vue)
-
-1. **在本地构建项目**：
-   进入Vue 项目根目录，执行构建命令：
-
-   bash
-
-   ```
-   npm run build
-   ```
-
-   构建完成后，会在项目根目录生成一个 `dist` 文件夹，里面包含了所有生产环境的静态文件。
-
-2. **上传 `dist` 到服务器**：
-   同样，把 `dist` 文件夹复制到 WSL 的文件系统中。
-
-   ```
-   # 在 WSL 中创建前端项目目录
-   mkdir -p ~/projects/frontend
-   # 复制 dist 文件夹 (假设它在 Windows C 盘根目录)
-   cp -r /mnt/c/dist ~/projects/frontend/
-   ```
-
-## 第三步：配置 Nginx
+## 第三步：配置 Nginx运行前端项目
 
 这是连接前后端的关键。Nginx 需要做两件事：一是找到你的前端页面，二是把 API 请求转交给后端 Java 程序。
 
@@ -471,7 +463,7 @@ USE alumni_direct;
 SOURCE /home/chinese/projects/sql/schema.sql;
 ```
 
-## 第五步：项目部署
+## 第五步：后端项目部署(SpringBoot)
 
 一个nginx只能部署一个前端项目？
 
@@ -481,7 +473,7 @@ SOURCE /home/chinese/projects/sql/schema.sql;
 java -jar alumni-direct-service-0.0.1-SNAPSHOT.jar  \
   --spring.datasource.url=jdbc:mysql://localhost:3306/yourdb \
   --spring.datasource.username=root \
-  --spring.datasource.password=你的密码 \
+  --spring.datasource.password=密码 \
   --spring.redis.host=localhost \
   --spring.redis.port=6379
 ```
@@ -491,7 +483,7 @@ java -jar alumni-direct-service-0.0.1-SNAPSHOT.jar  \
 ### 2. ⭐基于配置文件运行
 
 ```bash
-java -jar your-app.jar --spring.profiles.active=local
+java -jar alumni-direct-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
 ```
 
 > - `application.yml` (基础公共配置)
@@ -503,21 +495,19 @@ java -jar your-app.jar --spring.profiles.active=local
 >
 > 在部署时，通过 `--spring.profiles.active` 参数来指定，如 `--spring.profiles.active=test`。这样，Spring Boot 就会加载 `application.yml` 和 `application-test.yml` 中的配置，且**后者会覆盖前者的同名配置**
 
+项目启动成功
 
+![image](16.png)
 
-
-
-### 3. 后台运行且输出日志文件
-
-
-
-
-
-
+----
 
 ## 管理与监控
 
-### 项目启动和组件启动脚本
+### 配置为 systemd 服务
+
+### 后台执行并输出日志文件
+
+### ⭐项目启动和组件启动脚本
 
 ```
 ps -ef | grep java
@@ -565,6 +555,18 @@ kill -9 PID
 
 ### 监控
 
+#### ip地址
+
+i`p addr show eth0 | grep inet`  在WSL中查看ip地址，如果是正常的Linux系统则使用 `ifconfig`
+
+输出：
+
+```bash
+inet 172.31.19.238/20 brd 172.31.31.255 scope global eth0                                                   inet6 fe80::215:5dff:fe75:5d60/64 scope link    
+```
+
+#### ⭐进程查询
+
 ```
 ps aux          # 显示所有用户的所有进程，BSD 风格
 ps -ef          # 显示所有进程，Unix 风格
@@ -580,15 +582,28 @@ pgrep nginx           # 返回匹配进程的 PID
 pidof nginx           # 返回进程的 PID（精确匹配可执行文件名）
 ```
 
-### 日志文件的快捷命令
+#### 查看应用占用的端口号
+
+```
+# 查看所有监听中的 TCP 端口，过滤 minio 或 9000
+sudo ss -tlnp | grep minio
+# 或指定端口
+sudo ss -tlnp | grep :9000
+```
+
+### ⭐日志文件的快捷命令
+
+查看文件内容 
+
+`tail`
+
+cat
 
 
 
 
 
-
-
-### 上传
+### 文件上传
 
 
 
