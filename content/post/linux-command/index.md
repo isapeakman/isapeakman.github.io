@@ -65,7 +65,7 @@ openjdk version "17.0.19" 2026-04-21                                            
 
 ![image](1.png)
 
-核心内容都在**`/usr/lib/jvm/java-17-openjdk-amd64/`**文件夹中。
+核心内容都在`/usr/lib/jvm/java-17-openjdk-amd64/`文件夹中。
 
 > 是否需要配置环境变量：不需要，apt已经在/usr/bin/java、/usr/bin/javac等创建为软链接，并最终指向 JDK 的实际安装目录下的可执行文件（比如/usr/lib/jvm/java-17-openjdk-amd64/bin/java）
 
