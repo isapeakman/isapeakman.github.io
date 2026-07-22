@@ -8,8 +8,9 @@ categories:
     - 部署
     - 容器
 tags:
-    - docker
-    - docker-compose
+    - Docker
+    - Dockerfile
+    - Docker-Compose
     - Linux
 math: 
 license: 
