@@ -19,7 +19,7 @@ SortBy              = "default"
 
 [sidebar]
     emoji    = "🍥"
-    subtitle = "知道的越多，知道的越少。"
+    subtitle = "进一寸有进一寸的欢喜"
     avatar   = "img/avatar.jpg"
 	compact = false
 
