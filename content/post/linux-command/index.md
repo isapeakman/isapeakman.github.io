@@ -268,27 +268,24 @@ mvn clean package -DskipTests
 成功后，会在 `target/` 目录下生成一个 `.jar` 文件，比如 `myapp-0.0.1-SNAPSHOT.jar`。
 
 > 值得注意的是打包的jar时需要用到spring-boot-maven-plugin插件，这个jar会**包含正确的启动入口信息**。没有该插件打包出来的jar包没有包含入口信息，运行时会出现 `no main manifest attribute`
->
-> ```xml
+```xml
 <build>
-     <plugins>
-         <plugin>
-             <groupId>org.springframework.boot</groupId>
-             <artifactId>spring-boot-maven-plugin</artifactId>
-             <version>2.7.0</version> <!-- 版本号通常由 parent 管理，无需指定 -->
-             <executions>
-                 <execution>
-                     <goals>
-                         <goal>repackage</goal>
-                     </goals>
-                 </execution>
-             </executions>
-         </plugin>
-     </plugins>
+<plugins>
+    <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.7.0</version> <!-- 版本号通常由 parent 管理，无需指定 -->
+        <executions>
+            <execution>
+                <goals>
+                    <goal>repackage</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+</plugins>
  </build>
 ```
->
-> 
 
 ### 3. 上传 JAR 包到Linux
 
