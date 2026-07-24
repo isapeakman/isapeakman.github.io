@@ -416,7 +416,7 @@ public V get(Object key) {
 
 ### 扩容机制
 
-
+代办
 
 ----
 
@@ -424,10 +424,13 @@ public V get(Object key) {
 
 ### 数据结构
 
+与`HashMap`一致，都是数组+链表+红黑树
+
 ```java
     transient volatile Node<K,V>[] table;
     /**
      * The next table to use; non-null only while resizing.
+      扩容时使用的数组
      */
     private transient volatile Node<K,V>[] nextTable;
 
@@ -453,11 +456,11 @@ static class Node<K,V> implements Map.Entry<K,V> {
 >
 > **重要参数**
 >
-> `sizeCtl`：负数时，表正在初始化`（-1）`或扩容`-(1+正在扩容的线程数)`;0代表表还没有被初始化，正数表示达到这个值需要扩容，其实就是扩容阈值(容量 * 负载因子)
+> `sizeCtl`：负数时，表正在初始化`（-1）`或扩容`-(1+正在扩容的线程数)`;0代表数组还没有被初始化，正数表示达到这个值需要扩容，其实就是扩容阈值(容量 * 负载因子)
 
 ### Put
 
-#### put(K,V)源码
+#### put(K,V)
 
 ```java
 public V put(K key, V value) {
@@ -476,13 +479,13 @@ public V put(K key, V value) {
             Node<K,V> f; int n, i, fh; K fk; V fv;
             // 哈希表为空则进行初始化
             if (tab == null || (n = tab.length) == 0)
-                tab = initTable();// 说明1
-            // 哈希桶为空，即不存在哈希冲突，则尝试CAS添加到空哈希桶中，添加成功则跳出死循环，失败则重新				进入下层循环。
+                tab = initTable();
+            // 哈希桶为空，即不存在哈希冲突，则尝试CAS添加到空哈希桶中，添加成功则跳出死循环，失败则重新进入下层循环。
             else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
                 if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value)))
                     break;                   // no lock when adding to empty bin
             }
-            // 当哈希桶的头节点的哈希值为 MOVED(-1),则说明当前桶正在进行数据迁移（哈希表扩容导致的数据			迁移），当前线程会加入 协助扩容工作。
+            // 当哈希桶的头节点的哈希值为 MOVED(-1),则说明当前桶正在进行数据迁移（哈希表扩容导致的数据迁移），当前线程会加入 协助扩容工作。
             else if ((fh = f.hash) == MOVED)
                 tab = helpTransfer(tab, f);
             // 用于putIfAbsent时，存在则不覆盖而是返回该值。
@@ -645,7 +648,7 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
                     break;
                 // 使用CAS将 sizeCtl 的值从 sc 改为 sc + 1,即增加一个扩容线程
                 if (U.compareAndSetInt(this, SIZECTL, sc, sc + 1)) {
-                    //4. 执行实际的迁移工作
+                    //4. 执行实际的迁移工作，代码解析在扩容模块说明
                     transfer(tab, nextTab);
                     break;
                 }
@@ -659,133 +662,7 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
 
 > [!NOTE]
 >
-> 在执行协助扩容前，会通过 `U.compareAndSetInt(this, SIZECTL, sc, sc + 1)`给 `SIZECTL`加1，
-
-##### transfer()--进行扩容
-
-```java
-    /**
-     * Moves and/or copies the nodes in each bin to new table. See
-     * above for explanation.
-     */
-    private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
-        int n = tab.length, stride;
-        // 将 length / 8 然后除以 CPU核心数。如果得到的结果小于 16，那么就使用 16。
-        if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
-            stride = MIN_TRANSFER_STRIDE; // subdivide range
-        // 新数组尚未初始化
-        if (nextTab == null) {            // initiating
-            try {
-                @SuppressWarnings("unchecked")
-                // n<<1, 扩容的新数组容量为原本的两倍
-                Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n << 1];
-                nextTab = nt;
-            } catch (Throwable ex) {      // try to cope with OOME
-                sizeCtl = Integer.MAX_VALUE;
-                return;
-            }
-            nextTable = nextTab;
-            // 旧数组长度给到 transferIndex
-            transferIndex = n;
-        }
-        int nextn = nextTab.length;
-        // FWD节点，用于替换哈希桶头节点（占位）
-        ForwardingNode<K,V> fwd = new ForwardingNode<K,V>(nextTab);
-        boolean advance = true;
-        boolean finishing = false; // to ensure sweep before committing nextTab
-        // 领取当前线程的扩容任务区间（这段不好理解）
-        for (int i = 0, bound = 0;;) {
-            Node<K,V> f; int fh;
-            while (advance) {
-                int nextIndex, nextBound;
-                if (--i >= bound || finishing)
-                    advance = false;
-                else if ((nextIndex = transferIndex) <= 0) {
-                    i = -1;
-                    advance = false;
-                }
-                else if (U.compareAndSetInt
-                         (this, TRANSFERINDEX, nextIndex,
-                          nextBound = (nextIndex > stride ?
-                                       nextIndex - stride : 0))) {
-                    bound = nextBound;
-                    i = nextIndex - 1;
-                    advance = false;
-                }
-            }
-            if (i < 0 || i >= n || i + n >= nextn) {
-                int sc;
-                // 扩容完成
-                if (finishing) {
-                    nextTable = null;
-                    // 替换新数组
-                    table = nextTab;
-                    // 
-                    sizeCtl = (n << 1) - (n >>> 1);
-                    return;
-                }
-                if (U.compareAndSetInt(this, SIZECTL, sc = sizeCtl, sc - 1)) {
-                    if ((sc - 2) != resizeStamp(n) << RESIZE_STAMP_SHIFT)
-                        return;
-                    finishing = advance = true;
-                    i = n; // recheck before commit
-                }
-            }
-            // 桶为空，则直接添加 ForwardNode
-            else if ((f = tabAt(tab, i)) == null)
-                advance = casTabAt(tab, i, null, fwd);
-            // 如果桶已被迁移(头节点是ForwardingNode)，跳过
-            else if ((fh = f.hash) == MOVED)
-                advance = true; // already processed
-            else {
-                // 如果桶不为空，则同步锁住头节点，迁移该桶下的所有节点
-                synchronized (f) {
-                    // 对链表: 拆分成高位链和低位链，分别插入新表的对应位置
-                    if (tabAt(tab, i) == f) {
-                           // ...
-                        	// 设置低位链表放在新链表的 i
-                            setTabAt(nextTab, i, ln);
-                        	// 设置高位链表在 i+n的位置
-                            setTabAt(nextTab, i + n, hn);
-                        	// 设置旧数组哈希桶占位
-                            setTabAt(tab, i, fwd);
-                            advance = true;
-                        }
-                    // 对红黑树: 拆分成两棵树，或退化为链表
-                        else if (f instanceof TreeBin) {
-                            // ...
-                            // 低位树
-                            setTabAt(nextTab, i, ln);
-                            // 高位树
-                            setTabAt(nextTab, i + n, hn);
-                            // 旧数组 FWD占位
-                            setTabAt(tab, i, fwd);
-                            advance = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-```
-
-1. 初始化新表 (如果尚未初始化)
-2. 计算每个线程负责迁移的桶区间 (stride)
-3. 循环遍历旧表的每个桶，直到所有桶都被迁移
-   1. 如果桶为空，则CAS放入ForwardingNode
-   2. 如果桶已被迁移(头节点是ForwardingNode)，跳过
-   3. 如果桶不为空，则同步锁住头节点，迁移该桶下的所有节点
-      1. 对链表: 拆分成高位链和低位链，分别插入新表的对应位置
-      2. 对红黑树: 拆分成两棵树，或退化为链表
-   4. 迁移完成后，将旧桶位置替换为ForwardingNode
-      1. 所有桶迁移完成后，将新表赋值给 table，并重置 sizeCtl
-
-> [!NOTE]
->
-> `ForwardingNode`什么时候替换到哈希桶的头节点？
->
-> 迁移完当前桶的数据后替换，且它的哈希值是 -1
+> 在执行协助扩容前，会通过 `U.compareAndSetInt(this, SIZECTL, sc, sc + 1)`给 `SIZECTL`加1，即增加一个线程协助扩容
 
 ##### treeifyBin()--树化
 
@@ -830,7 +707,7 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
 >
 > treeifyBin树化方法里会判断是选择扩容还是树化。链表>=8且数组容量<64选择扩容，链表>=8且数组容量>=64选择转为红黑树
 
-##### addCount()--计数
+### 计数addCount()
 
 > [!TIP]
 >
@@ -860,7 +737,7 @@ private final void addCount(long x, int check) {
             // baseCount加上 cells数组的值
             s = sumCount();
         }
- 	// 其他逻辑   
+ 	// 扩容逻辑省略...在扩容模块详细说明
 }
 final long sumCount() {
         CounterCell[] cs = counterCells;
@@ -986,20 +863,22 @@ private final void fullAddCount(long x, boolean wasUncontended) {
 4. 如果数组大小小于CPU核数，且CAS失败两次触发扩容数组
 5. 重新计算探针hash，进入下层循环
 
-### get
+### get(K)
 
 ```java
 public V get(Object key) {
         Node<K,V>[] tab; Node<K,V> e, p; int n, eh; K ek;        //计算key的hash值
         int h = spread(key.hashCode());        //数组不为空，获取对应桶的值
         if ((tab = table) != null && (n = tab.length) > 0 &&
-            (e = tabAt(tab, (n - 1) & h)) != null) {            //获取到，直接返回value
-            if ((eh = e.hash) == h) {
+            (e = tabAt(tab, (n - 1) & h)) != null) {            
+            if ((eh = e.hash) == h) {//桶的头节点就是相同的Key，则直接返回头节点值
                 if ((ek = e.key) == key || (ek != null && key.equals(ek)))
                     return e.val;
-            }            //小于0，就是上面介绍的TREEBIN状态，是红黑树，在红黑树中查找
+            }            
+            //小于0，就是上面介绍的TREEBIN状态，是红黑树，在红黑树中查找
             else if (eh < 0)
-                return (p = e.find(h, key)) != null ? p.val : null;            //链表的处理方法，一个一个遍历
+                return (p = e.find(h, key)) != null ? p.val : null;            
+            //链表的处理方法，一个一个遍历
             while ((e = e.next) != null) {
                 if (e.hash == h &&
                     ((ek = e.key) == key || (ek != null && key.equals(ek))))
@@ -1087,7 +966,131 @@ private final void tryPresize(int size) {
     }
 ```
 
+#### transfer()--扩容核心方法
 
+```java
+    /**
+     * Moves and/or copies the nodes in each bin to new table. See
+     * above for explanation.
+     */
+    private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
+        int n = tab.length, stride;
+        // 将 length / 8 然后除以 CPU核心数。如果得到的结果小于 16，那么就使用 16。
+        if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
+            stride = MIN_TRANSFER_STRIDE; // subdivide range
+        // 新数组尚未初始化
+        if (nextTab == null) {            // initiating
+            try {
+                @SuppressWarnings("unchecked")
+                // n<<1, 扩容的新数组容量为原本的两倍
+                Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n << 1];
+                nextTab = nt;
+            } catch (Throwable ex) {      // try to cope with OOME
+                sizeCtl = Integer.MAX_VALUE;
+                return;
+            }
+            nextTable = nextTab;
+            // 旧数组长度给到 transferIndex
+            transferIndex = n;
+        }
+        int nextn = nextTab.length;
+        // FWD节点，用于替换哈希桶头节点（占位）
+        ForwardingNode<K,V> fwd = new ForwardingNode<K,V>(nextTab);
+        boolean advance = true;
+        boolean finishing = false; // to ensure sweep before committing nextTab
+        // 领取当前线程的扩容任务区间（这段不好理解）
+        for (int i = 0, bound = 0;;) {
+            Node<K,V> f; int fh;
+            while (advance) {
+                int nextIndex, nextBound;
+                if (--i >= bound || finishing)
+                    advance = false;
+                else if ((nextIndex = transferIndex) <= 0) {
+                    i = -1;
+                    advance = false;
+                }
+                else if (U.compareAndSetInt
+                         (this, TRANSFERINDEX, nextIndex,
+                          nextBound = (nextIndex > stride ?
+                                       nextIndex - stride : 0))) {
+                    bound = nextBound;
+                    i = nextIndex - 1;
+                    advance = false;
+                }
+            }
+            if (i < 0 || i >= n || i + n >= nextn) {
+                int sc;
+                // 扩容完成
+                if (finishing) {
+                    nextTable = null;
+                    // 替换新数组
+                    table = nextTab;
+                    // 
+                    sizeCtl = (n << 1) - (n >>> 1);
+                    return;
+                }
+                if (U.compareAndSetInt(this, SIZECTL, sc = sizeCtl, sc - 1)) {
+                    if ((sc - 2) != resizeStamp(n) << RESIZE_STAMP_SHIFT)
+                        return;
+                    finishing = advance = true;
+                    i = n; // recheck before commit
+                }
+            }
+            // 桶为空，则直接添加 ForwardNode
+            else if ((f = tabAt(tab, i)) == null)
+                advance = casTabAt(tab, i, null, fwd);
+            // 如果桶已被迁移(头节点是ForwardingNode)，跳过
+            else if ((fh = f.hash) == MOVED)
+                advance = true; // already processed
+            else {
+                // 如果桶不为空，则同步锁住头节点，迁移该桶下的所有节点
+                synchronized (f) {
+                    // 对链表: 拆分成高位链和低位链，分别插入新表的对应位置
+                    if (tabAt(tab, i) == f) {
+                           // ...
+                        	// 设置低位链表放在新链表的 i
+                            setTabAt(nextTab, i, ln);
+                        	// 设置高位链表在 i+n的位置
+                            setTabAt(nextTab, i + n, hn);
+                        	// 设置旧数组哈希桶占位
+                            setTabAt(tab, i, fwd);
+                            advance = true;
+                        }
+                    // 对红黑树: 拆分成两棵树，或退化为链表
+                        else if (f instanceof TreeBin) {
+                            // ...
+                            // 低位树
+                            setTabAt(nextTab, i, ln);
+                            // 高位树
+                            setTabAt(nextTab, i + n, hn);
+                            // 旧数组 FWD占位
+                            setTabAt(tab, i, fwd);
+                            advance = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+```
+
+1. 初始化新表 (如果尚未初始化)
+2. 计算每个线程负责迁移的桶区间 (stride)
+3. 循环遍历旧表的每个桶，直到所有桶都被迁移
+   1. 如果桶为空，则CAS放入ForwardingNode
+   2. 如果桶已被迁移(头节点是ForwardingNode)，跳过
+   3. 如果桶不为空，则同步锁住头节点，迁移该桶下的所有节点
+      1. 对链表: 拆分成高位链和低位链，分别插入新表的对应位置
+      2. 对红黑树: 拆分成两棵树，或退化为链表
+   4. 迁移完成后，将旧桶位置替换为ForwardingNode
+      1. 所有桶迁移完成后，将新表赋值给 table，并重置 sizeCtl
+
+> [!NOTE]
+>
+> `ForwardingNode`什么时候替换到哈希桶的头节点？
+>
+> 迁移完当前桶的数据后替换，且它的哈希值是 -1
 
 ----
 
@@ -1100,13 +1103,17 @@ private final void tryPresize(int size) {
 
 
 
-
-
-**为什么 `key` 和 `value` 不能为 `null`？** 
+### **为什么 `key` 和 `value` 不能为 `null`？** 
 
 - Key不为null：避免对特殊 `null` 值的特殊哈希处理，在并发场景下维护简单性和性能。
 
 - value不为null：为了支持并发。当 `get(key)` 返回 `null` 时，无法判断是 key 不存在，还是 key 存在但值为 `null`。在并发环境下，这种二义性会带来问题。
+
+### CAS在ConcurrentHashMap哪里应用？
+
+1. 初始化数组时，使用Unsafe的`compareAndSetInt(this, SIZECTL, sc, -1)`，通过修改 `volatile int SIZECTL`由0改为-1，保证单线程执行初始化数组的逻辑
+2. 桶为空时，无锁添加元素，`compareAndSetReference(tab, ((long)i << ASHIFT) + ABASE, null, v)`, 将新节点V添加到对应位置
+3. 协助扩容时，`U.compareAndSetInt(this, SIZECTL, sc, sc + 1)`,原子性地去增加`SIZECTL`
 
 
 
