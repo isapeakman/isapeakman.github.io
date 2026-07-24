@@ -20,11 +20,6 @@ build:
 
 
 
-#### 第一部分：引论 - 为什么要用 `ConcurrentHashMap`？
-
-- **问题引入**：从 `HashMap` 在多线程环境下可能导致的**死循环、数据丢失**等问题切入。
-- **对比分析**：比较 `HashMap`（非线程安全）、`Hashtable`（全表锁，并发度低）和 `Collections.synchronizedMap`（同样低效）的优劣，点明 `ConcurrentHashMap` 在并发场景下的必要性。
-
 #### 第二部分：JDK 1.7 的实现 - 分段锁机制（理解演进）
 
 - **核心数据结构**：理解 **`Segment` 数组 + `HashEntry` 数组 + 链表**的结构。`Segment` 继承自 `ReentrantLock`，扮演锁的角色。
@@ -454,19 +449,15 @@ static class Node<K,V> implements Map.Entry<K,V> {
  }
 ```
 
-重要参数
+> [!IMPORTANT]
+>
+> **重要参数**
+>
+> `sizeCtl`：负数时，表正在初始化`（-1）`或扩容`-(1+正在扩容的线程数)`;0代表表还没有被初始化，正数表示达到这个值需要扩容，其实就是扩容阈值(容量 * 负载因子)
 
-`sizeCtl`：负数时，表正在初始化`（-1）`或扩容`-(1+正在扩容的线程数)`;0代表表还没有被初始化，正数表示达到这个值需要扩容，其实就是扩容阈值(容量 * 负载因子)
+### Put
 
-
-
-
-
-
-
-### Put过程涉及的方法
-
-#### put(K,V)
+#### put(K,V)源码
 
 ```java
 public V put(K key, V value) {
@@ -505,6 +496,7 @@ public V put(K key, V value) {
                 // 锁住头节点
                 synchronized (f) {
                     if (tabAt(tab, i) == f) {
+                        // hash大于等于0表示当前节点为链表，hash为负数时，，比如-1则为ForwardNode，-2为TreeBin
                         if (fh >= 0) {
                             binCount = 1;
                             // 遍历链表
@@ -561,26 +553,51 @@ public V put(K key, V value) {
     }
 ```
 
+#### 核心流程
 
+1. 数组没有初始化就先初始化数组；
+2. 计算当前插入的key的hash值；
+3. 根据第二步的hash值定位到桶的位置，如果为null，直接CAS自旋插入；
+4. 如果是链表就遍历链表，有相同的key就替换，没有就插入到链表尾部；
+5. 如果是红黑树直接插入；
+6. 判断链表长度是否大于等于8，是则考虑是否需要扩容，再考虑是否要转为红黑树。(数组容量小于64则先扩容，大于等于64才树化)；
+7. ConcurrentHashMap元素个数加1；
 
-#### initTable()表的初始化
+> [!NOTE]
+>
+> 从源码的put可见，增加了 key和value不可为null的检查
+>
+> 流程再细节一点就需要考虑到协助扩容了。哈希桶存在节点则判断hash值是否为-1，即代表此时正在扩容，当前线程会先进行协助扩容，等扩容完再进入下层循环添加元素。
+
+#### 核心方法
+
+##### initTable()--表的初始化
 
 ```java
+private transient volatile int sizeCtl;
 private final Node<K,V>[] initTable() {
         Node<K,V>[] tab; int sc;
         while ((tab = table) == null || tab.length == 0) {
+            // sizeCtl为负数，表示正在初始化或者扩容
             if ((sc = sizeCtl) < 0)
+                // 当前线程让出CPU使用权，让其他线程有机会获取CPU使用权
+                // 即使当前线程再次获取到CPU使用权，仍然会进入下次循环，再次循环到这里它还会让出CPU的，直到初始化或扩容完成
                 Thread.yield(); // lost initialization race; just spin
+            // 初始状态SIZECTL为0，通过CAS修改为-1
             else if (U.compareAndSetInt(this, SIZECTL, sc, -1)) {
                 try {
+                    // 双重检查
                     if ((tab = table) == null || tab.length == 0) {
                         int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
                         @SuppressWarnings("unchecked")
+                        // 初始化
                         Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
                         table = tab = nt;
+                        // n - n / 4 = 3/4 n 
                         sc = n - (n >>> 2);
                     }
                 } finally {
+                    // sizeCtl扩容阈值为 3/4n 即0.75初始容量
                     sizeCtl = sc;
                 }
                 break;
@@ -590,7 +607,15 @@ private final Node<K,V>[] initTable() {
     }
 ```
 
-#### casTabAt()
+> [!TIP]
+>
+> 这里线程A去初始化表，通过CAS修改`SIZECTL`为-1，表示正在初始化，而 其他线程过来发现 `SIZECTL`小于0则不断 `yield`直到初始化完成才返回。
+>
+> 采用了  `volatile int sizeCtl`+  `U.compareAndSetInt(this, SIZECTL, sc, -1)`去保护了  初始化表的代码逻辑，有点类似 自旋锁的保护，抢不到锁的线程会在**循环中一直重试**。
+>
+> 也有点像在保持数据库和缓存一致性时，更新数据库后，删除缓存，在重建缓存时，只让一个线程获取互斥锁添加缓存，其他线程阻塞。
+
+##### casTabAt()--桶位为空无锁添加
 
 使用 `Unsage`的 `CAS`方法 做到 在空哈希桶时进行无锁添加，添加成功则返回true, 添加失败则false。
 
@@ -602,9 +627,7 @@ static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,
     }
 ```
 
-#### helpTransfer()
-
-`helpTransfer`: 协助扩容方法
+##### helpTransfer()--当前线程协助扩容
 
 ```java
 final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
@@ -634,7 +657,11 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
     }
 ```
 
-#### transfer()
+> [!NOTE]
+>
+> 在执行协助扩容前，会通过 `U.compareAndSetInt(this, SIZECTL, sc, sc + 1)`给 `SIZECTL`加1，
+
+##### transfer()--进行扩容
 
 ```java
     /**
@@ -754,15 +781,13 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
    4. 迁移完成后，将旧桶位置替换为ForwardingNode
       1. 所有桶迁移完成后，将新表赋值给 table，并重置 sizeCtl
 
- 
+> [!NOTE]
+>
+> `ForwardingNode`什么时候替换到哈希桶的头节点？
+>
+> 迁移完当前桶的数据后替换，且它的哈希值是 -1
 
-
-
-ForwardingNode什么时候替换到哈希桶的头节点？
-
-迁移完当前桶的数据后替换，且它的哈希值是 -1
-
-#### treeifyBin()
+##### treeifyBin()--树化
 
 ```java
     /**
@@ -801,9 +826,17 @@ ForwardingNode什么时候替换到哈希桶的头节点？
     }
 ```
 
-#### addCount()
+> [!NOTE]
+>
+> treeifyBin树化方法里会判断是选择扩容还是树化。链表>=8且数组容量<64选择扩容，链表>=8且数组容量>=64选择转为红黑树
 
-核心思想可参考 [并发之Striped64（累加器）和 LongAdder – 酷 壳 – CoolShell 3F](https://coolshell.me/articles/striped64-and-longadder-in-jdk.html)
+##### addCount()--计数
+
+> [!TIP]
+>
+> 该方法的核心思想可参考 [并发之Striped64（累加器）和 LongAdder – 酷 壳 – CoolShell 3F](https://coolshell.me/articles/striped64-and-longadder-in-jdk.html)
+>
+> 核心内容简而言之就是：JDK8提供了 `Striped64`作为高并发下的累加器，设计思想是多线程竞争累加器激烈的时候，将这些竞争分散（分段计数）。通过维护 `baseCount`和 `Cell`数组，计数线程先更新 `baseCount`，若成功则直接结束计数，失败则认为当前竞争激烈，通过 `Cell`数组分散计数，在这个过程中通过线程来计算哈希，分散到 `Cell`数组中。最后总计数 = `baseCount`+ `Cell`数组总和。**这是高并发计数的实现方式。**
 
 ```java
 private final void addCount(long x, int check) {
@@ -841,19 +874,218 @@ final long sumCount() {
     }
 ```
 
-这是高并发计数的实现方式
+```java
+/**
+ * Spinlock (locked via CAS) used when resizing and/or creating CounterCells.
+	用于扩容和初始化cells数组的自旋锁
+*/
+private transient volatile int cellsBusy;
+private transient volatile CounterCell[] counterCells;
 
-- 从源码的put可见，增加了 key和value不可为null的检查
+private final void fullAddCount(long x, boolean wasUncontended) {
+        int h;
+        if ((h = ThreadLocalRandom.getProbe()) == 0) {
+            ThreadLocalRandom.localInit();      // force initialization
+            h = ThreadLocalRandom.getProbe();
+            wasUncontended = true;
+        }
+        boolean collide = false;                // True if last slot nonempty
+        for (;;) {
+            CounterCell[] cs; CounterCell c; int n; long v;
+            // counterCells存在
+            if ((cs = counterCells) != null && (n = cs.length) > 0) {
+                // 当前位置的CounterCell不存在
+                if ((c = cs[(n - 1) & h]) == null) {
+                    if (cellsBusy == 0) {            // Try to attach new Cell
+                        // 创建CounterCell
+                        CounterCell r = new CounterCell(x); // Optimistic create
+                        if (cellsBusy == 0 &&
+                            U.compareAndSetInt(this, CELLSBUSY, 0, 1)) {// 尝试加自旋锁
+                            boolean created = false;
+                            try {               // Recheck under lock
+                                CounterCell[] rs; int m, j;
+                                if ((rs = counterCells) != null &&
+                                    (m = rs.length) > 0 &&
+                                    rs[j = (m - 1) & h] == null) {//双重检查
+                                    rs[j] = r;
+                                    created = true;
+                                }
+                            } finally {//释放锁
+                                cellsBusy = 0;
+                            }
+                            if (created)
+                                break;
+                            continue;           // Slot is now non-empty
+                        }
+                    }
+                    collide = false;
+                }
+                else if (!wasUncontended)       // CAS already known to fail
+                    wasUncontended = true;      // Continue after rehash
+                // 槽位不为空则尝试更新
+                else if (U.compareAndSetLong(c, CELLVALUE, v = c.value, v + x))
+                    break;
+                else if (counterCells != cs || n >= NCPU)
+                    collide = false;            // At max size or stale
+                // 上述 CAS失败则会将collide置true
+                else if (!collide)
+                    collide = true;
+                // collide为true后仍CAS失败，进行扩容
+                else if (cellsBusy == 0 &&
+                         U.compareAndSetInt(this, CELLSBUSY, 0, 1)) {//获取自旋锁
+                    try {
+                        // 扩容
+                        if (counterCells == cs) // Expand table unless stale
+                            counterCells = Arrays.copyOf(cs, n << 1);
+                    } finally {
+                        cellsBusy = 0;
+                    }
+                    collide = false;
+                    continue;                   // Retry with expanded table
+                }
+                //这里是重新生成一个随机数，换个位置试试，比如上面新增节点失败了，换个位置试试，或者通过CAS修改值失败，也换个位置再试试
+                h = ThreadLocalRandom.advanceProbe(h);
+            }
+            // 未加锁(当前数组非扩容或初始化)且counterCells数组为空，尝试加上自旋锁
+            else if (cellsBusy == 0 && counterCells == cs &&
+                     U.compareAndSetInt(this, CELLSBUSY, 0, 1)) {
+                boolean init = false;
+                try {                           // Initialize table
+                    if (counterCells == cs) {//双重检查
+                        // 初始化数组并在对应位置建立CounterCell
+                        CounterCell[] rs = new CounterCell[2];
+                        rs[h & 1] = new CounterCell(x);
+                        counterCells = rs;
+                        init = true;
+                    }
+                } finally {
+                    // 释放锁
+                    cellsBusy = 0;
+                }
+                if (init)
+                    break;
+            }
+            // 兜底：数组初始化竞争失败，直接 CAS baseCount
+            else if (U.compareAndSetLong(this, BASECOUNT, v = baseCount, v + x))
+                break;                          // Fall back on using base
+        }
+    }
+```
 
+> [!NOTE]
+>
+> `wasUncontended`字段是通过 `addCount()`方法传进来的，在 addCount逻辑里已经尝试 CAS修改 baseCount 和 CounterCell槽位，都失败了，带着失败的状态`wasUncontended = false`进来 fullAddCount 方法，当 `wasUncontended == false` 时，**它不让你直接去做 CAS 竞争原槽位**，而是强制把 `wasUncontended` 设为 `true`，并进入下一轮循环去重新哈希（更换探针），从而很**大概率换一个不同的槽位**去操作，避免在已经拥挤的同一个槽位上做无用功。
+>
+> `collide` 表示**冲突的强度或频率**，是一个“**两次失败才触发扩容**”的机制，第一次 CAS失败会设置为 true，第二次 CAS失败则会进行扩容。
 
+核心流程：
 
-关于TreeBin<K,V>
+1. 判断数组是否为空，为空的话初始化数组
+2. 如果数组存在，通过探针hash定位桶中的位置，如果桶中为空，新建节点，通过CAS锁插入数组，如果成功，结束，如果失败转到第5步
+3. 如果定位到桶中有值，通过CAS修改，如果成功，结束，如果失败向下走
+4. 如果数组大小小于CPU核数，且CAS失败两次触发扩容数组
+5. 重新计算探针hash，进入下层循环
 
-涉及到的CAS协调并发，提高的性能呢
+### get
 
+```java
+public V get(Object key) {
+        Node<K,V>[] tab; Node<K,V> e, p; int n, eh; K ek;        //计算key的hash值
+        int h = spread(key.hashCode());        //数组不为空，获取对应桶的值
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            (e = tabAt(tab, (n - 1) & h)) != null) {            //获取到，直接返回value
+            if ((eh = e.hash) == h) {
+                if ((ek = e.key) == key || (ek != null && key.equals(ek)))
+                    return e.val;
+            }            //小于0，就是上面介绍的TREEBIN状态，是红黑树，在红黑树中查找
+            else if (eh < 0)
+                return (p = e.find(h, key)) != null ? p.val : null;            //链表的处理方法，一个一个遍历
+            while ((e = e.next) != null) {
+                if (e.hash == h &&
+                    ((ek = e.key) == key || (ek != null && key.equals(ek))))
+                    return e.val;
+            }
+        }
+        return null;
+    }
+```
 
+### 扩容机制
 
-扩容机制
+#### 情况1
+
+集合中的元素个数达到阈值时，进行扩容
+
+```java
+private final void addCount(long x, int check) {
+    // 计数逻辑省略...可在前面的计数源码分析查看
+    // 以下是扩容逻辑
+	if (check >= 0) {//桶中元素>=0，比如addCount(1L,binCount);
+            Node<K,V>[] tab, nt; int n, sc;
+        //循环条件： s(元素总数) >= 阈值
+            while (s >= (long)(sc = sizeCtl) && (tab = table) != null &&
+                   (n = tab.length) < MAXIMUM_CAPACITY) {
+                int rs = resizeStamp(n) << RESIZE_STAMP_SHIFT;
+                // sizeCtl<0表示正在扩容
+                if (sc < 0) {
+                    // 协助线程已达上线||扩容结束||新数组为null||迁移任务已认领完毕
+                    if (sc == rs + MAX_RESIZERS || sc == rs + 1 ||
+                        (nt = nextTable) == null || transferIndex <= 0)
+                        // 跳出循环，不协助扩容
+                        break;
+                    // 尝试协助扩容
+                    if (U.compareAndSetInt(this, SIZECTL, sc, sc + 1))
+                        transfer(tab, nt);
+                }
+                // 没有扩容，当前线程作为发起者开始扩容
+                else if (U.compareAndSetInt(this, SIZECTL, sc, rs + 2))
+                    transfer(tab, null);
+                s = sumCount();
+            }
+        }
+}
+```
+
+#### 情况2
+
+当容量小于64，但是链表中发生hash冲突的节点个数大于等于8，这时也会扩容
+
+```java
+private final void tryPresize(int size) {
+        int c = (size >= (MAXIMUM_CAPACITY >>> 1)) ? MAXIMUM_CAPACITY :
+            tableSizeFor(size + (size >>> 1) + 1);
+        int sc;
+        while ((sc = sizeCtl) >= 0) {
+            Node<K,V>[] tab = table; int n;
+            // 数组为空则初始化数组
+            if (tab == null || (n = tab.length) == 0) {
+                n = (sc > c) ? sc : c;
+                if (U.compareAndSetInt(this, SIZECTL, sc, -1)) {
+                    try {
+                        if (table == tab) {
+                            @SuppressWarnings("unchecked")
+                            Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
+                            table = nt;
+                            sc = n - (n >>> 2);
+                        }
+                    } finally {
+                        sizeCtl = sc;
+                    }
+                }
+            }
+            // 大于等于最大容量，不可扩容
+            else if (c <= sc || n >= MAXIMUM_CAPACITY)
+                break;
+            // 表已存在且需要扩容
+            else if (tab == table) {
+                int rs = resizeStamp(n);
+                if (U.compareAndSetInt(this, SIZECTL, sc,
+                                        (rs << RESIZE_STAMP_SHIFT) + 2))
+                    transfer(tab, null);
+            }
+        }
+    }
+```
 
 
 
@@ -885,6 +1117,8 @@ final long sumCount() {
 [【集合框架ConcurrentHashMap进阶】-腾讯云开发者社区-腾讯云](https://cloud.tencent.com.cn/developer/article/2561469?from=15425&frompage=seopage)
 
 [ConcurrentHashMap原理分析(二)-扩容 - 猿起缘灭 - 博客园](https://www.cnblogs.com/gunduzi/p/13651664.html)
+
+[ConcurrentHashMap原理分析(三)-计数 - 猿起缘灭 - 博客园](https://www.cnblogs.com/gunduzi/p/13653505.html#_label1)
 
 [ConcurrentHashMap详解：原理、实现与并发控制-CSDN博客](https://blog.csdn.net/Dcein/article/details/148591286)
 
